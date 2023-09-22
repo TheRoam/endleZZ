@@ -1,5 +1,6 @@
 # endleZZ
 A (silly) tiny javascript infinite zombie game
+![endleZZ-v02b](https://github.com/TheRoam/endleZZ/assets/63456390/40a1b368-92af-43c6-9956-e04134ac0067)
 
 ## Description
 You are a survivor with unlimited ammo surrounded by zombies, how long can you survive?
@@ -24,8 +25,6 @@ Wasting ammo reduces your score though, so make accurate shots!
 
 Despite of this, the game can be played offline, running the .html file locally anywhere.
 
-Version v0.1 is an initial proof-of-concept release with all the main features enabled for testing.
-
 Otherwise, you can play the **online release** version which I host in my server.
 
 ## Online release
@@ -37,6 +36,11 @@ Otherwise, you can play the **online release** version which I host in my server
 * Lightweight: 20 KB
 * Offline: download and play locally.
 * Infinite survival game
+* Random map generation
+1. Trees
+2. Rocks
+* Random weather conditions
+1. Cloud generation
 * Random enemy spawn time
 * Random enemy spawn location
 * Random enemy features
@@ -52,13 +56,15 @@ Otherwise, you can play the **online release** version which I host in my server
 4. (Time) Survival time [Not implemented]
 
 ## Feature brainstorming:
-* options menu
+* options menu: instructions
 * final score summary page
 * more complex graphics
 * day-night cycle
-* weather system
-* map objects
+* weather system: add rain
+* map objects: walls
 * complex enemies
+* enemy looting
+* player special attacks/combos/weapos
 
 ## Changelog
 
@@ -86,3 +92,17 @@ Release: 25-09-2022
 - player object death animation
 - created restart game option after death
 - created initial warning message for copyright
+### v 0.1.1 Initial bugfix
+Release: 28-09-2022
+- disabled user-select so game text is now not selectable
+- adjusted warning size
+- created function to check origin and display warning accordingly
+### v 0.2.0 Anniversary update
+Release: 23-09-2023
+- added options menu
+- added timing controls: pause, restore, quit
+- graphics improvements: game objects
+- weather system: random cloud generation
+- added instructions page
+- bullets now reach the end of the screen despite where you click
+- overall performance and interaction improvements
