@@ -29,6 +29,16 @@ version 0.1.1 28-09-2022  Initial bugfix
         - adjusted warning size
         - created function to check origin and display warning accordingly
 ----------------------
+version 0.2.0 23-09-2023  Anniversary update
+    changelog:
+        - added options menu
+        - added timing controls: pause, restore, quit
+        - graphics improvements: game objects
+        - weather system: random cloud generation
+        - added instructions page
+        - bullets now reach the end of the screen despite where you click
+        - overall performance improvements
+----------------------
 -->
 <html>
 <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
@@ -166,16 +176,36 @@ input{
     width:100vw;
     height:100vh;
     top:0;
-    background-color:MediumAquaMarine;
+    background-color: MediumAquaMarine;
+    background: radial-gradient(peru 0%, saddlebrown 100%);
     overflow:hidden;
+    z-Index:1;
+}
+
+#objs{
+    width:100vw;
+    height:100vh;
+    position:absolute;
+    top:0;
+    overflow:hidden;
+}
+#sky{
+    width:100vw;
+    height:100vh;
+    position:absolute;
+    top:0;
+    overflow:hidden;
+    z-Index:99;
 }
 
 :fullscreen {
   background-color: MediumAquaMarine;
+  background: radial-gradient(peru 0%, saddlebrown 100%);
 }
 
 :-webkit-full-screen {
   background-color: MediumAquaMarine;
+  background: radial-gradient(peru 0%, saddlebrown 100%);
 }
 
 #plyr-cnt{
@@ -239,21 +269,24 @@ input{
 
 #optBar{
     display:flex;
-    opacity:0;
-    flex-direction:row;
-    align-content:center;
+    position:absolute;
+    top:0;
+    right:0;
+    flex-direction:column;
+    text-align:center;
+    z-Index:100;
 }
 
 .optBtn{
-    width:30px;
-    font-size:20px;
-    background-color:black;
+    width:50px;
+    font-size:30px;
+    background-color:lightgrey;
     margin:0;
     padding:0;
     cursor:pointer;
     color:white;
-    font-weight:bold;
     text-shadow:1px 0 1px white;
+    visibility:visible;
 }
 
 .optBtn:hover{
@@ -268,7 +301,7 @@ input{
     height:50px;
     margin:auto;
     opacity:0;
-    z-Index:20;
+    z-Index:100;
 }
 
 .gameTxt{
@@ -281,12 +314,12 @@ input{
     font-weight:bold;
     font-family:Verdana;
     margin:auto;
-    color:Crimson;
+    color:LemonChiffon;
     opacity:0;
     z-Index:20;
     text-shadow:2px 0 2px DarkRed;
     text-align:center;
-    z-Index:11;
+    z-Index:100;
     cursor:context-menu;
     animation: fadeTxt 3s linear;
 }
@@ -304,6 +337,18 @@ input{
 @keyframes fadeTxt{
     0% {opacity:1;}
     100% {opacity:0;transform:translateY(-50px);}
+}
+
+@keyframes cMoveA{
+    0% {opacity:0;}
+    50% {opacity:0.8;}
+    100% {opacity:0;transform:translate(0px,0px);}
+}
+
+@keyframes cMoveB{
+    0% {opacity:0;}
+    50% {opacity:0.8;}
+    100% {opacity:0;transform:translate(0px,0px);}
 }
 
 @keyframes zMove{
@@ -328,6 +373,13 @@ input{
 
 @keyframes blood{
     100%{width:100px;height:100px;border-radius:100px;}
+}
+
+.paused{
+    -webkit-animation-play-state:paused;
+    -moz-animation-play-state:paused;
+    -o-animation-play-state:paused; 
+    animation-play-state:paused;
 }
 
 </style>
@@ -355,7 +407,7 @@ input{
     <span id="introTit">endleZZ<br>
 
 <!-- Game description -->
-    <span style="text-align:right;font-size:4vw;font-variant:normal;transform:rotateZ(-3deg);text-shadow:0.3vw 0.05vw 0.02vw darkgrey;">A <span style="color:darkgrey;text-decoration:line-through;text-decoration-thickness:0.5vw;">silly</span> tiny <span style="font-family:courier new;font-size:4vw;font-style:normal;">&#60javascript&#62</span> infinite zombie game<i style="color:orangered"><br>v 0 . 1</i></span>
+    <span style="text-align:right;font-size:4vw;font-variant:normal;transform:rotateZ(-3deg);text-shadow:0.3vw 0.05vw 0.02vw darkgrey;">A <span style="color:darkgrey;text-decoration:line-through;text-decoration-thickness:0.5vw;">silly</span> tiny <span style="font-family:courier new;font-size:4vw;font-style:normal;">&#60javascript&#62</span> infinite zombie game<i style="color:orangered"><br>v 0 . 2</i></span>
     </span>
 
 <!-- Start button -->
@@ -374,17 +426,21 @@ input{
     </div>
 </div>
 
-<!-- Bottom control menu -->
-<div id="btmMenu">
+<div id="objs"></div>
+<div id="sky"></div>
 
 <!-- Options icons -->
-<!--Disabled for the moment
+<!--Disabled for the moment-->
 <div id="optBar">
-    <span id="menuBtn" class="optBtn">⚙</span><br>
-    <span id="pauseBtn" class="optBtn" onclick="pause()" ontouchstart="pause()" onmousedown="pause()">▯▯</span><br>
-    <span id="rstBtn" class="optBtn" onclick="restore()" ontouchstart="restore()" onmousedown="restore()">↺</span><br>
+    <span id="menuBtn" class="optBtn" ontouchstart="toggleMenu()" onmousedown="toggleMenu()"><b>⚙</b></span><br>
+    <span id="pauseBtn" class="optBtn" style="font-size:20px;" ontouchstart="pause()" onmousedown="pause()">▮▮</span><br>
+    <span id="rstBtn" class="optBtn" ontouchstart="restore()" onmousedown="restore()"><b>↺</b></span><br>
+    <span id="exitBtn" class="optBtn" ontouchstart="exit()" onmousedown="exit()"><b>↩</b></span><br>
 </div>
--->
+
+
+<!-- Bottom control menu -->
+<div id="btmMenu">
 
 <!-- Stats bar -->
 <span class="statBar">Time <span id="tStat">0 : 0 : 0</span><span id="zStat"> | Hits: 0 | Kills: 0 | Spawns: 0 | Bullets: 0</span><span id="sStat"> | Score: 0</span></span>
@@ -423,7 +479,7 @@ function msg(tit,txt){
 function checkOrigin(){
     //get app execution location
     var appE=window.location.href;
-    var appO="https://theroamingworkshop.cloud/endlezz";
+    var appO="https://theroamingworkshop.cloud/endlezz/";
     if(appO==appE){
         return("TRW");
     }else{
@@ -442,8 +498,7 @@ function iniWarning(){
 "You are playing an official web version of <b>endleZZ</b>. ENJOY!<br><br>\
 <br><br><input name='instructions'/>\
 <label for='intrsuctions' style='font-size:48px;font-weight:bold;color:darkgrey;'>▶ INSTRUCTIONS</label>\
-<br><br><input name='skip'/>\
-<label for='skip' style='font-size:48px;font-weight:bold;color:orangered;' class='aMsgTxt' onclick='clsWrn()'>▶ SKIP</label>"
+<br><br><button style='font-size:48px;font-weight:bold;color:orangered;' class='aMsgTxt' onclick='clsMsg()'>▶ SKIP</button>"
 
     );
     }else{
@@ -458,14 +513,15 @@ Make sure that this copy is downloaded from the official source @github:<br><br>
 <br><br><a style='color:orangered' href='https://theroamingworkshop.cloud/endleZZ' target='_blank'>https://theroamingworkshop.cloud/endleZZ</a>\
 <br><br><input name='instructions'/>\
 <label for='intrsuctions' style='font-size:48px;font-weight:bold;color:darkgrey;'>▶ INSTRUCTIONS</label>\
-<br><br><input name='skip'/>\
-<label for='skip' style='font-size:48px;font-weight:bold;color:orangered;' class='aMsgTxt' onclick='clsWrn()'>▶ SKIP</label>"
+<br><br><input type='button' name='skip'/>\
+<br><br><button style='font-size:48px;font-weight:bold;color:orangered;' class='aMsgTxt' onclick='clsMsg()'>▶ SKIP</button>"
     );
     }
 }
 
 //Game variables
 var ang=0;                      //cursor angle
+var AngleStatus=1;              //angle status, freezed or responsive
 var z=0;                        //zombie counter
 var b=0;                        //bullet counter
 var k=0;                        //kill counter
@@ -478,6 +534,16 @@ var maxTspawn=5000;             //maximum spawn time
 var tSpawn=Math.random()*maxTspawn+1;  //random spawn time in miliseconds from 0 to maxTspawn
 var tIni=new Date();            //initial time variable
 var gameClone="";
+var maxTrees=30;				//maximum number of trees to spawn
+var treeId=0;					//tree counter
+var treeOffset=200;				//tree offset distance from center in pixels
+var maxRocks=80;				//maximum number of rocks to spawn
+var rockId=0;					//rock counter
+var maxClouds=50;				//maximum number of clouds to spawn
+var cloudId=0;					//cloud counter
+var cRateA=11;					//cloud rate in seconds for animation
+var cRateB=27;					//cloud rate in seconds for animation
+var cAnim=[];
 
 var sMin=5;                     //minimum speed (in seconds)
 var sMax=20;                    //maximum speed (in seconds)
@@ -487,27 +553,59 @@ var pX="50%";                   //player X coordinate
 var pY="50%";                   //player Y coordinate
 var pW=15;                      //player Width in pixels
 var pH=15;                      //player Height in pixels
-var gRate=5;                    //gun shooting rate
+var gRate=2;                    //gun shooting rate
 var refRate=3000;               //gun rate reference value in miliseconds
 
 var time="";
 var zSpawn="";
 var screenCheck="";
 var colDetect="";
-var tPause="";
+var tAtPause=0;
+var tRestore=0;
+var tTime;
 var shot="";
+var gameStatus="";
 
 
 //Function at game start
 function start(){
+	//Remove intro menu and set to full screen
     document.getElementById("intro").style.display="none";
     window.document.body.requestFullscreen();
+    //hide options
+    hideMenu();
+    
+    //Set game status to "Playing"
+    gameStatus="Playing";
+    
     //set listeners
     addListeners();
+    
+    //spawn objects
+		//spawn trees
+    var treeNum=Math.random()*maxTrees+1;
+    for (var t=0;t<treeNum;t++){
+		//console.log("Spawning tree "+t);
+		spawnTrees();
+	}
+		//spawn rocks
+    var rockNum=Math.random()*maxRocks+1;
+    for (var r=0;r<rockNum;r++){
+		//console.log("Spawning rock "+r);
+		spawnRocks();
+	}
+	
     //place player
     plyrPos();
     //clone game for restart
     gameClone=document.body.cloneNode(true);
+
+	//spawn first clouds
+	spawnCloudsA();
+	//loop for cloud spawn
+    cSpawnA=setInterval(spawnCloudsA,cRateA*1000);
+    cSpawnB=setInterval(spawnCloudsB,cRateB*1000);
+    
     //loop for timer
     tIni=new Date();
     //start with 1s delay to avoid counting first click
@@ -516,10 +614,13 @@ function start(){
         b=0;
         S=0;
     },1000);
-    //loop for spawn
+    
+    //loop for zombie spawn
     zSpawn=setTimeout(zObject,tSpawn);
-    //loop to check screen size adn recalculate new locations
+    
+    //loop to check screen size and recalculate new locations
     screenCheck=setInterval(screen,1000);
+    
     //loop for collision detector
     colDetect=setInterval(colDetector,10);
 }
@@ -530,6 +631,31 @@ function restart(){
     document.body.innerHTML="";
     //add start body
     document.body.innerHTML=gameClone.innerHTML;
+    
+    //restore game status to "playing"
+    gameStatus="Playing";
+    
+    //restore objects
+    document.getElementById("objs").innerHTML="";
+		//spawn trees
+    var treeNum=Math.random()*maxTrees+1;
+    for (var t=0;t<treeNum;t++){
+		//console.log("Spawning tree "+t);
+		spawnTrees();
+	}
+		//spawn rocks
+    var rockNum=Math.random()*maxRocks+1;
+    for (var r=0;r<rockNum;r++){
+		//console.log("Spawning rock "+r);
+		spawnRocks();
+	}
+	
+	//spawn first clouds
+	spawnCloudsA();
+	//loop for cloud spawn
+    cSpawnA=setInterval(spawnCloudsA,cRateA*1000);
+    cSpawnB=setInterval(spawnCloudsB,cRateB*1000);
+	
     //continue startup
     //loop for timer
     tIni=new Date();
@@ -550,62 +676,94 @@ function restart(){
 
 //Function for pause
 function pause(){
-    tPause=new Date();
-    console.log(tPause);
+    if(gameStatus=="Playing"){
+    //save time
+    tAtPause=new Date(tTime);
+    
+    //Set game status to "Paused"
+    gameStatus="Paused";
+    
     //kill all timer intervals
     clearInterval(time);
     clearTimeout(zSpawn);
     clearInterval(screenCheck);
     clearInterval(colDetect);
+    clearInterval(cSpawnA);
+    clearInterval(cSpawnB);
     //stop animations
     stopAnimations();
     //stop listeners
-    stopListeners();
+    //NOT USED - BUGGY!!
+    //stopListeners();
     //notify pause
-    notify("Game Paused!");
+    notify("GAME PAUSED!");
+    }
 }
 
 //Function for end
 function end(){
-    tPause=new Date();
-    console.log(tPause);
+    if(gameStatus=="Playing"){
+    //Set game status to "Paused"
+    gameStatus="Ended";
+    
     //kill all timer intervals
     clearInterval(time);
     clearTimeout(zSpawn);
     clearInterval(screenCheck);
     clearInterval(colDetect);
+    clearInterval(cSpawnA);
+    clearInterval(cSpawnB);
     //end animation
     endAnimation();
     //stop listeners
-    
+    //NOT USED - BUGGY!!
     //stopListeners();
+    }
 }
 
 //Function to restore after pause
 function restore(){
-    var tRestore=new Date();
-    console.log(tRestore);
-    tIni=new Date(tIni+(tRestore-tPause));
-    console.log(tIni);
-    time=setInterval(timer,1000);
-    //loop for spawn
-    zSpawn=setTimeout(zObject,tSpawn);
-    //loop to check screen size adn recalculate new locations
-    screenCheck=setInterval(screen,1000);
-    //loop for collision detector
-    colDetect=setInterval(colDetector,10);
-    //restore animations
-    restoreAnimations();
-    //restore listeners
-    addListeners();//TO-DO: doesnt restore listeners!!!
-    //notify restore
-    notify("Game Restored!");
+    if(gameStatus=="Paused"){
+        gameStatus="Playing";
+        //restore time counter
+        //tRestore=new Date(tTime);
+        tIni=new Date();
+        time=setInterval(timer,1000);
+        //loop for spawn
+        zSpawn=setTimeout(zObject,tSpawn);
+        //loop to check screen size adn recalculate new locations
+        screenCheck=setInterval(screen,1000);
+        //loop for collision detector
+        colDetect=setInterval(colDetector,10);
+	    //loop for cloud spawn
+        cSpawnA=setInterval(spawnCloudsA,cRateA*1000);
+        cSpawnB=setInterval(spawnCloudsB,cRateB*1000);
+        //restore animations
+        restoreAnimations();
+        //restore listeners
+        addListeners();//TO-DO: doesnt restore listeners!!!
+        //notify restore
+        notify("GAME RESTORED!");
+    }
+}
+
+//Function to exit game and go back to initial screen
+function exit(){
+    //Restore initial screen
+    document.getElementById("intro").style.display="flex";
+    window.document.exitFullscreen();
+    //refresh page
+    window.location.reload();
 }
 
 //Timer function
 function timer(){
     var tNow=new Date();
-    var tTime=new Date(tNow-tIni);
+    tTime=new Date(tNow-tIni);
+    try{
+        tTime.setTime(tTime.getTime()+tAtPause.getTime());
+    }catch(err){//avoids error when tAtPause is cero
+    }
 
     //update time    
     document.getElementById("tStat").innerHTML=timeFormat(tTime.getUTCHours())+" :"+timeFormat(tTime.getUTCMinutes())+" :"+timeFormat(tTime.getUTCSeconds());
@@ -633,6 +791,312 @@ function screen(){
     h=window.innerHeight;
 }
 
+//Function to spawn trees randomly at start
+function spawnTrees(){
+
+    //create object for tree
+    var tree=document.createElement("span");
+    //assign ID (ascending) used as counter
+    treeId++;
+    tree.setAttribute("id","tree"+treeId);
+    
+    //set tree type (number of circles that make up the tree, random from 1 to 5)
+    var tLvl=Math.floor((Math.random()*(5-1+1))+1);
+    tree.setAttribute("lvl",tLvl);
+    //add to game
+    document.getElementById("objs").appendChild(tree);
+
+    //reassign tree object for edition
+    tree=document.getElementById("tree"+treeId);
+    
+    //ubicación aleatoria
+    //la ubicación es porcentual para conservarla al redimensionar
+    //se excluye el centro de la pantalla para no tapar al jugador
+
+	var zX=Math.random()*(w-1); //excluimos el último pixel para que no quede fuera
+	var zY=Math.random()*(h-1);
+	while ( ( zX>(w/2-treeOffset) && zX < (w/2+treeOffset) ) || ( zY>(h/2-treeOffset) && zY < (h/2+treeOffset) ) ){
+		zX=Math.random()*(w-1);
+		zY=Math.random()*(h-1);
+	}
+	
+	tree.style.left=((Math.random() * 5)+(zX*100/w))+"%";
+	tree.style.top=((Math.random() * 5)+(zY*100/h))+"%";
+
+    //add object levels if needed
+    //first, get total cubes needed for object level
+    var lTotal=tLvl**2;
+    if(tLvl>1){
+        //loop for rows
+        for (var i=-1;i<tLvl-1;i++){
+            //loop for columns
+            var j=-1;
+            /*if(i==0){
+                j=1;
+            }*/
+            for(j;j<tLvl-1;j++){
+                var lvl=tree.cloneNode();
+                lvl.setAttribute("id","t"+treeId+"."+i+"."+j);
+                tree.appendChild(lvl);
+                //set properties
+                lvl=document.getElementById("t"+treeId+"."+i+"."+j);
+                //move to right (offset from left origin)
+                //lvl.style.left=(j*8)+"px";
+                //move each row
+                //lvl.style.top=(i*8)+"px";
+                //place randomly
+                lvl.style.left=((Math.random() * 10)+(zX*100/w))+"%";
+				lvl.style.top=((Math.random() * 10)+(zY*100/h))+"%";
+				//size random from 5 to 100 px
+				var treesize=Math.floor((Math.random()*100)+5)+"px";
+				lvl.style.width=treesize;
+				lvl.style.height=treesize;
+				lvl.style.backgroundColor="DarkGreen";
+				lvl.style.backgroundImage="radial-gradient(Maroon 5%, DarkGreen 6%, DarkGreen 60%)";
+				lvl.style.position="absolute";
+				lvl.style.zIndex="50";
+				lvl.style.opacity=0.4;
+				lvl.style.borderRadius=treesize;
+				lvl.style.border="2px solid DarkGreen";
+				lvl.style.boxShadow="0 0 20px DarkOliveGreen";
+            }
+        }
+    }
+	
+}
+
+//Function to spawn rocks randomly at start
+function spawnRocks(){
+
+    //create object for rock
+    var rock=document.createElement("span");
+    //assign ID (ascending) used as counter
+    rockId++;
+    rock.setAttribute("id","rock"+rockId);
+    
+    //set rock type (number of circles that make up the rock, random from 1 to 3)
+    var rLvl=Math.floor((Math.random()*(3-1+1))+1);
+    rock.setAttribute("lvl",rLvl);
+    //add to game
+    document.getElementById("objs").appendChild(rock);
+
+    //reassign rock object for edition
+    rock=document.getElementById("rock"+rockId);
+    
+    //ubicación aleatoria
+    //la ubicación es porcentual para conservarla al redimensionar
+
+	var zX=Math.random()*(w-1); //excluimos el último pixel para que no quede fuera
+	var zY=Math.random()*(h-1);
+	
+	rock.style.left=((Math.random() )+(zX*100/w))+"%";
+	rock.style.top=((Math.random() )+(zY*100/h))+"%";
+
+    //add object levels
+    //first, get total cubes needed for object level
+    var lTotal=rLvl**2;
+    if(rLvl>1){
+        //loop for rows
+        for (var i=-1;i<rLvl-1;i++){
+            //loop for columns
+            var j=-1;
+            /*if(i==0){
+                j=1;
+            }*/
+            for(j;j<rLvl-1;j++){
+                var lvl=rock.cloneNode();
+                lvl.setAttribute("id","r"+rockId+"."+i+"."+j);
+                rock.appendChild(lvl);
+                //set properties
+                lvl=document.getElementById("r"+rockId+"."+i+"."+j);
+                //place randomly
+                lvl.style.left=((Math.random() )+(zX*100/w))+"%";
+				lvl.style.top=((Math.random() )+(zY*100/h))+"%";
+				//size random from 5 to 20 px
+				var rocksize=Math.floor((Math.random()*20)+5)+"px";
+				lvl.style.width=rocksize;
+				lvl.style.backgroundColor="DarkSlateGrey";
+				lvl.style.position="absolute";
+				lvl.style.zIndex="1";
+				lvl.style.opacity=0.85;
+				lvl.style.borderRadius=rocksize;
+				lvl.style.border="1px solid DarkSlateGrey";
+				lvl.style.boxShadow="0 0 3px rgba(0,0,0,0.8)";
+				lvl.style.height=parseFloat(rocksize.substring(0,rocksize.length-2))*0.65+"px";
+            }
+        }
+    }
+
+}
+
+//Function to randomly add clouds
+function spawnCloudsA(){
+
+    //create object for clouds
+    var cloud=document.createElement("span");
+    //assign ID (ascending) used as counter
+    cloudId++;
+    cloud.setAttribute("id","cloud"+cloudId);
+    
+    //set cloud type (number of circles that make up the cloud, random from 3 to 10)
+    var cLvl=Math.floor((Math.random()*(10-1+3))+3);
+    cloud.setAttribute("lvl",cLvl);
+    //add to game
+    document.getElementById("sky").appendChild(cloud);
+
+    //reassign cloud object for edition
+    cloud=document.getElementById("cloud"+cloudId);
+    
+    //ubicación aleatoria
+    //la ubicación es porcentual para conservarla al redimensionar
+
+	var zX=Math.random()*(w-1); //excluimos el último pixel para que no quede fuera
+	var zY=Math.random()*(h-1);
+	
+	cloud.style.left=((Math.random() )+(zX*100/w))+"%";
+	cloud.style.top=((Math.random() )+(zY*100/h))+"%";
+	cloud.style.zIndex=95;
+
+    //add object levels
+    //first, get total cubes needed for object level
+    var lTotal=cLvl**2;
+    var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+    if(cLvl>1){
+        //loop for rows
+        for (var i=1;i<=cLvl;i++){
+            //loop for columns
+            var j=1;
+            /*if(i==0){
+                j=1;
+            }*/
+            //for(j;j<=cLvl;j++){
+                var lvl=cloud.cloneNode();
+                lvl.setAttribute("id","c"+cloudId+i);
+                cloud.appendChild(lvl);
+                //set properties
+                lvl=document.getElementById("c"+cloudId+i);
+                //place randomly
+                lvl.style.left=((Math.random() )+(zX*100/w))*0.1*plusOrMinus+"%";
+                plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+				lvl.style.top=((Math.random() )+(zY*100/h))*0.1*plusOrMinus+"%";
+				//size random from 20 to 500 px
+				var cloudsize=Math.floor((Math.random()*500)+20)+"px";
+				lvl.style.width=cloudsize;
+				lvl.style.backgroundColor="WhiteSmoke";
+				lvl.style.position="absolute";
+				lvl.style.zIndex="95";
+				lvl.style.opacity=0;
+				lvl.style.borderRadius=cloudsize;
+				lvl.style.border="1px solid White";
+				lvl.style.boxShadow="0 0 3px Snow";
+				lvl.style.height=parseFloat(cloudsize.substring(0,cloudsize.length-2))*Math.random()*0.5+"px";
+				//add cloud animation
+				lvl.style.animation="cMoveA "+cRateA+"s ease-in-out";
+				//modify coordinates
+				
+	            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+                zX=Math.random()*(w-1)*plusOrMinus;
+                
+                plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            	zY=Math.random()*(h-1)*plusOrMinus;
+				
+				document.styleSheets[0].rules[32][2].style.setProperty("transform","translate("+zX+w+"px,+"+zY+h+"px)")
+				
+			    //remove cloud after animation
+                lvl.addEventListener("animationend", function(){
+                    objClear(lvl.id);
+                }); 
+                //for chrome, safari, opera..
+                lvl.addEventListener("webkitAnimationEnd", function(){
+                    objClear(lvl.id);
+                });
+        }
+    }
+}
+function spawnCloudsB(){
+
+    //create object for clouds
+    var cloud=document.createElement("span");
+    //assign ID (ascending) used as counter
+    cloudId++;
+    cloud.setAttribute("id","cloud"+cloudId);
+    
+    //set cloud type (number of circles that make up the cloud, random from 3 to 10)
+    var cLvl=Math.floor((Math.random()*(10-1+3))+3);
+    cloud.setAttribute("lvl",cLvl);
+    //add to game
+    document.getElementById("sky").appendChild(cloud);
+
+    //reassign cloud object for edition
+    cloud=document.getElementById("cloud"+cloudId);
+    
+    //ubicación aleatoria
+    //la ubicación es porcentual para conservarla al redimensionar
+
+	var zX=Math.random()*(w-1); //excluimos el último pixel para que no quede fuera
+	var zY=Math.random()*(h-1);
+	
+	cloud.style.left=((Math.random() )+(zX*100/w))+"%";
+	cloud.style.top=((Math.random() )+(zY*100/h))+"%";
+	cloud.style.zIndex=95;
+
+    //add object levels
+    //first, get total cubes needed for object level
+    var lTotal=cLvl**2;
+    var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+    if(cLvl>1){
+        //loop for rows
+        for (var i=1;i<=cLvl;i++){
+            //loop for columns
+            var j=1;
+            /*if(i==0){
+                j=1;
+            }*/
+            //for(j;j<=cLvl;j++){
+                var lvl=cloud.cloneNode();
+                lvl.setAttribute("id","c"+cloudId+i);
+                cloud.appendChild(lvl);
+                //set properties
+                lvl=document.getElementById("c"+cloudId+i);
+                //place randomly
+                lvl.style.left=((Math.random() )+(zX*100/w))*0.1*plusOrMinus+"%";
+                plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+				lvl.style.top=((Math.random() )+(zY*100/h))*0.1*plusOrMinus+"%";
+				//size random from 20 to 500 px
+				var cloudsize=Math.floor((Math.random()*500)+20)+"px";
+				lvl.style.width=cloudsize;
+				lvl.style.backgroundColor="WhiteSmoke";
+				lvl.style.position="absolute";
+				lvl.style.zIndex="95";
+				lvl.style.opacity=0;
+				lvl.style.borderRadius=cloudsize;
+				lvl.style.border="1px solid White";
+				lvl.style.boxShadow="0 0 3px Snow";
+				lvl.style.height=parseFloat(cloudsize.substring(0,cloudsize.length-2))*Math.random()*0.5+"px";
+				//add cloud animation
+				lvl.style.animation="cMoveB "+cRateB+"s ease-in-out";
+				//modify coordinates
+				
+	            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+                zX=Math.random()*(w-1)*plusOrMinus;
+                
+                plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            	zY=Math.random()*(h-1)*plusOrMinus;
+				
+				document.styleSheets[0].rules[33][2].style.setProperty("transform","translate("+zX+"px,+"+zY+"px)");
+		
+			    //remove cloud after animation
+                lvl.addEventListener("animationend", function(){
+                    objClear(lvl.id);
+                }); 
+                //for chrome, safari, opera..
+                lvl.addEventListener("webkitAnimationEnd", function(){
+                    objClear(lvl.id);
+                });
+        }
+    }
+}
+
 //Function to place player in the center
 function plyrPos(){
     //set player size and shape
@@ -658,7 +1122,8 @@ function addListeners(){
     });
         //start shooting
     document.body.addEventListener("touchstart", function(event){
-
+		//equivalent to mousedown except on Safari... it gets duplicated elsewhere
+		//make an exception
     });
         //end shooting
     document.body.addEventListener("touchend", function(event){
@@ -672,12 +1137,19 @@ function addListeners(){
         //start shooting
     document.body.addEventListener("mousedown", function(event){
         bulletAng(event);
+        return true;
     });
 }
 
 //Function to stop listeners
 function stopListeners(){
-    document.body.addEventListener("touchmove", function(event) {
+    //OPTION 1: clone body. Need to restore some listeners
+    /*var bClone = document.body.cloneNode(true);
+
+	document.body.parentNode.replaceChild(bClone, document.body);*/
+	
+	//OPTION 2: remove individual listeners. It wont restore them later.
+    /*document.body.addEventListener("touchmove", function(event) {;
         event.stopImmediatePropagation();
     }, true);
 
@@ -695,17 +1167,22 @@ function stopListeners(){
 
     document.body.addEventListener("mousedown", function(event) {
         event.stopImmediatePropagation();
-    }, true);
+    }, true);*/
 }
 
 //Function to assign player rotation
 function setRot(a){
-    document.getElementById("plyr-gun-cnt").style.transform="rotate("+(a-Math.PI/2)+"rad)";
+    if(AngleStatus==1){
+        document.getElementById("plyr-gun-cnt").style.transform="rotate("+(a-Math.PI/2)+"rad)";
+    }
 }
  
 //Function to calculate player rotation angle
 function plyrAng(e){
 
+	//refresh screen size
+	screen();
+	
     //get touch/click coordinates
 
     try{//for touch
@@ -728,7 +1205,7 @@ function plyrAng(e){
     }
 
     //var t=document.getElementById("txt");
-    //t.innerHTML=w+"w\n"+h+"h\n"+X+"X\n"+Y+"Y\n"+ang+"rad";
+    //console.log(w+"w\n"+h+"h\n"+X+"X\n"+Y+"Y\n"+ang+"rad");
 
     //assign rotation to player
     setRot(ang);
@@ -736,6 +1213,10 @@ function plyrAng(e){
 
 //Function for bullet direction and animation
 function bulletAng(e){
+	//Only when gameStatus is "Playing"
+	if(gameStatus!="Playing"){
+		return;
+	}
     var bAng=0;
     //get gun object
     var pGun=document.getElementById("plyr-bdy");
@@ -748,7 +1229,7 @@ function bulletAng(e){
         var bX=e.clientX.toFixed(0);
         var bY=e.clientY.toFixed(0);
     }
-
+	
     //Calculate angle in radians (arc tangent of sides from center)
     if(bX>=w/2){
         var ba=bX-(w/2);
@@ -759,9 +1240,37 @@ function bulletAng(e){
         var bb=bY-(h/2);
         bAng=(Math.PI+Math.atan((bb/ba))).toFixed(3);
     }
-    //now get the distances to the borders
-//    ba=h*0.9/2/Math.atan(bAng);
-//    bb=w/2*Math.atan(bAng);
+    
+    //Get diagonal angle
+    var diagAng=Math.atan((h/2)/(w/2));
+    
+    //now get the distances to the borders using proportions depending on polar sectors
+    //	ba/bb = bW/bH
+	
+	if(bAng>-diagAng && bAng < diagAng){
+		//console.log("Sector1");
+		var bW=w/2;
+		bb=bW*bb/ba;
+		ba=bW;
+	}
+	if( bAng>diagAng && bAng < (-diagAng+Math.PI) ){
+		//console.log("Sector2");
+		var bH=h/2;
+		ba=ba*bH/bb;
+		bb=bH;
+	}
+	if( bAng> (-diagAng+Math.PI) && bAng < (diagAng+Math.PI) ){
+		//console.log("Sector3");
+		var bW=w/2;
+		bb=-bW*bb/ba;
+		ba=-bW;
+	}
+	if( bAng> (diagAng+Math.PI) || bAng < -diagAng ){
+		//console.log("Sector4");
+		var bH=h/2;
+		ba=-ba*bH/bb;
+		bb=-bH;
+	}
 
     //create bullet object
     b++;
@@ -780,7 +1289,7 @@ function bulletAng(e){
     bllt.style.top=(pW/2)+"px";
     bllt.style.left=(pW/2)+"px";
     bllt.style.zIndex="10";
-    bllt.style.backgroundColor="red";
+    bllt.style.backgroundColor="LemonChiffon";
 //    bllt.style.transform="rotate("+(bAng-Math.PI/2)+"rad)";
 
     //add bullet animation
@@ -806,13 +1315,13 @@ function bulletAng(e){
 
     //remove bullet after animation
     bllt.addEventListener("animationend", function(){
-        console.log("eliminando Bala "+bllt.id);
+        //console.log("eliminando Bala "+bllt.id);
         objClear(bllt.id);
         objClear(bStyle.id);
     }); 
     //for chrome, safari, opera..
     bllt.addEventListener("webkitAnimationEnd", function(){
-        console.log("eliminando Bala "+bllt.id);
+        //console.log("eliminando Bala "+bllt.id);
         objClear(bllt.id);
         objClear(bStyle.id);
     });
@@ -841,10 +1350,10 @@ function zObject(){
 
     //reassign zombie object for edition
     zombie=document.getElementById("z"+z);
-    //set physical properties (5px black square)
-    zombie.style.width="5px";
-    zombie.style.height="5px";
-    zombie.style.backgroundColor="OliveDrab";
+    //set physical properties (8px black square)
+    zombie.style.width="8px";
+    zombie.style.height="8px";
+    zombie.style.backgroundColor="DarkKhaki";
     zombie.style.position="absolute";
     zombie.style.zIndex="15";
     zombie.style.opacity=0.95;
@@ -871,9 +1380,9 @@ function zObject(){
                 //set properties
                 lvl=document.getElementById("z"+z+"."+i+"."+j);
                 //move to right (offset from left origin)
-                lvl.style.left=(j*5)+"px";
+                lvl.style.left=(j*8)+"px";
                 //move each row
-                lvl.style.top=(i*5)+"px";
+                lvl.style.top=(i*8)+"px";
                 //move back
                 lvl.style.zIndex="5";
             }
@@ -881,7 +1390,11 @@ function zObject(){
     }
     //change zombie head color and bring to front
     zombie=document.getElementById("z"+z);
-    zombie.style.backgroundColor="DarkGreen";
+    zombie.style.backgroundColor="Maroon";
+    zombie.style.boxShadow="0 0 3px LemonChiffon";
+    zombie.style.width="8px";
+    zombie.style.height="8px";
+    zombie.style.borderRadius="8px";
 
 
     //ubicación aleatoria en los bordes (1:arriba; 2:derecha; 3:abajo; 4:izquierda)
@@ -945,6 +1458,9 @@ function zObject(){
     });
     //show spawned zombie attributes    
 //    console.log(zombie.id+" vel: "+zombie.getAttribute("vel")+" lvl: "+zombie.getAttribute("lvl"));
+
+	//zombie spawn message
+	notify("Z spawned!");
 }
 
 //Function for collision detection
@@ -961,7 +1477,7 @@ function colDetector(){
             for(var n=0;n<Zs[c].children.length;n++){
                 col=collides(Bs[b],Zs[c].children[n]);
                 if(col){
-                    console.log("COLLISION!!!");
+                    //console.log("COLLISION!!!");
                     //delete bullet so it doesn't hit anymore
                     Bs[b].remove();
                     //remove zombie element
@@ -975,7 +1491,7 @@ function colDetector(){
             //last object
             col=collides(Bs[b],Zs[c]);
             if(col){
-                console.log("COLLISION!!!");
+                //console.log("COLLISION!!!");
                 //remove bullet
                 Bs[b].remove();
                 //remove zombie
@@ -991,7 +1507,7 @@ function colDetector(){
     for(var c=1;c<Zs.length;c++){
         col=collides(pl,Zs[c]);
         if(col){
-            console.log("COLLISION!!!");
+            //console.log("COLLISION!!!");
             notify("You DIED!");
             //end game by pausing
             end();
@@ -1028,27 +1544,51 @@ function collides(a, b) {
 }
 
 function stopAnimations(){
+    //zombies and bullets
     var Zs=document.getElementById("main").children;
     var pl=document.getElementById("plyr-bdy");
     var Bs=pl.children;
+    //clouds
+    var Cl=document.getElementById("sky").children;
+    //loop and pause animations
     for(var c=1;c<Zs.length;c++){
         Zs[c].style.animationPlayState="paused";
     }
     for(var b=1;b<Bs.length;b++){
         Bs[b].style.animationPlayState="paused";
     }
+    for(var k=0;k<Cl.length;k++){
+        var Clc=Cl[k].children;
+        for(var q=0;q<Clc.length;q++){
+            Clc[q].style.animationPlayState="paused";
+        }
+    }
+    //stop gun rotation
+    AngleStatus=0;
 }
 
 function restoreAnimations(){
+    //zombies and bullets
     var Zs=document.getElementById("main").children;
     var pl=document.getElementById("plyr-bdy");
     var Bs=pl.children;
+    //clouds
+    var Cl=document.getElementById("sky").children;
+    //loop and run animations
     for(var c=1;c<Zs.length;c++){
         Zs[c].style.animationPlayState="running";
     }
     for(var b=1;b<Bs.length;b++){
         Bs[b].style.animationPlayState="running";
     }
+    for(var k=0;k<Cl.length;k++){
+        var Clc=Cl[k].children;
+        for(var q=0;q<Clc.length;q++){
+            Clc[q].style.animationPlayState="running";
+        }
+    }
+    //restore gun rotation
+    AngleStatus=1;
 }
 
 function endAnimation(){
@@ -1097,7 +1637,7 @@ function endAnimation(){
         spill.style.top=((Math.random() * 5)+45)+"%";
         //size random from 5 to 25 px
         var spillsize=Math.floor((Math.random()*25)+5)+"px";
-        console.log(spillsize);
+        //console.log(spillsize);
         spill.style.width=spillsize;
         spill.style.height=spillsize;
         //make it circular
@@ -1128,13 +1668,39 @@ function endAnimation(){
 
 //Function to vanish zombie after animation
 async function objClear(i){
-    document.getElementById(i).remove();
+    try{
+        document.getElementById(i).remove();
+    }catch(err){
+        //do nothing
+    }
 }
 
 //Function to close warning message
-function clsWrn(){
-    document.getElementById("warning").style.display="none";
+function clsMsg(){
+    document.getElementById("message").style.display="none";
 }
+
+//Functions to show/hide menu
+function toggleMenu(){
+    if(document.getElementById("pauseBtn").style.visibility=="visible"){
+        hideMenu();
+    }else{
+        showMenu();
+    }
+}
+function showMenu(){
+    document.getElementById("pauseBtn").style.visibility="visible";
+    document.getElementById("rstBtn").style.visibility="visible";
+    document.getElementById("exitBtn").style.visibility="visible";
+}
+
+function hideMenu(){
+    document.getElementById("pauseBtn").style.visibility="hidden";
+    document.getElementById("rstBtn").style.visibility="hidden";
+    document.getElementById("exitBtn").style.visibility="hidden";
+}
+
+
 
 //Function for delays (not used)
 function sleep(ms) {
