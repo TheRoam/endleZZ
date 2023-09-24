@@ -106,3 +106,7 @@ Release: 23-09-2023
 - added instructions page
 - bullets now reach the end of the screen despite where you click
 - overall performance and interaction improvements
+### v 0.2.1 Minor styling
+Release: 24-09-2023
+- fixed menu background display
+- added zombie eyes
