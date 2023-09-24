@@ -1,0 +1,748 @@
+<!--
+----------------------------
+ENDLEZZ by THE ROAMING WORKSHOP
+----------------------------
+version 0.1 25-09-2022
+----------------------
+-->
+<html>
+<meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+    width:100vw;
+    height:100vh;
+    margin:0;
+    background-color:black;
+    overflow:hidden;
+    cursor:context-menu;
+}
+#warning{
+    display:flex;
+    position:absolute;
+    flex-direction:column;
+    width:100%;
+    height:100%;
+    padding:10% 20% 10% 20%;
+    background-color:rgba(0,0,0,0.98);
+    z-Index:1001;
+    animation: warnIn 0.5s linear;
+    overflow:hidden;
+}
+.warnTxt{
+    width:60%;
+    background-color:rgba(255,255,255,0.05);
+    font-size:24px;
+    font-family:Verdana;
+    color:white;
+    padding:20px 10px 10px 10px;
+    z-Index:1001;
+    animation:warnTxt 1s linear;
+}
+.AwarnTxt:hover{
+    cursor:pointer;
+    text-decoration:underline;
+}
+@keyframes warnIn{
+    0%{top:-100%;}
+    80%{top:20%;}
+    100%{top:10%;}
+}
+
+@keyframes warnTxt{
+    0%{opacity:0;}
+    100%{opacity:1;}
+}
+#intro{
+    padding:2vw 2vw 2vw 2vw;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    position:absolute;
+    top:0;
+    left:0;
+    background-color:black;
+    width:100vw;
+    height:100vh;
+    color:white;
+    font-family:times new roman;
+    font-weight:bold;
+    font-size:20vw;
+    font-style:oblique;
+    font-variant:small-caps;
+    z-Index:1000;
+    perspective:80vw;
+    overflow:hidden;
+}
+#introTit{
+    transform:rotateY(-45deg) rotateX(15deg) translateX(-10vw);
+    text-shadow:0.8vw -0.05vw 0.1vw darkgrey;
+}
+#TRW{
+    color:orangered;
+    text-decoration:none;
+}
+#TRW:hover{
+    color:darkorange;
+}
+#stBtn{
+    color:darkred;
+    background:transparent;
+    border:none;
+    font-family:times new roman;
+    font-variant:small-caps;
+    font-size:10vw;
+    text-shadow:2px 2px 2px darkslategrey;
+    text-decoration:underline;
+    animation:start 1.5s infinite;
+}
+#stBtn:hover{
+    color:white;
+}
+@keyframes start{
+    from {color:rgba(255, 160, 122,255);}
+    to {color: rgba(178, 34, 34,255);}
+}
+#main{
+    width:100vw;
+    height:100vh;
+    top:0;
+    background-color:MediumAquaMarine;
+    overflow:hidden;
+}
+:fullscreen {
+  background-color: MediumAquaMarine;
+}
+:-webkit-full-screen {
+  background-color: MediumAquaMarine;
+}
+#plyr-cnt{
+    position:absolute;
+    width:1px;
+    height:1px;
+    z-Index:10;
+}
+#plyr-bdy{
+    display:block;
+    left:8px;
+    top:8px;
+    background-color:black;
+    z-Index:10;
+}
+#plyr-gun-cnt{
+    display:block;
+    position:relative;
+    width:1px;
+    height:1px;
+    top:50%;
+    left:50%;
+    background-color:black;
+    transform:rotate(45deg);
+    z-Index:10;
+}
+#plyr-gun{
+    display:block;
+    position:relative;
+    width:4px;
+    height:20px;
+    top:3px;
+    left:-1px;
+    background-color:lightgrey;
+    z-Index:10;
+}
+#btmMenu{
+    display:flex;
+    flex-direction:column;
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:100vw;
+    text-align:center;
+    z-Index:100;
+}
+.statBar{
+    width:100vw;
+    border:2px solid black;
+    background-color:lightgrey;
+    font-family:Verdana;
+    font-size:24px;
+    font-variant:small-caps;
+    align-content:center;
+    align-items:center;
+    padding: 5px 5px 5px 5px;
+}
+#optBar{
+    display:flex;
+    opacity:0;
+    flex-direction:row;
+    align-content:center;
+}
+.optBtn{
+    width:30px;
+    font-size:20px;
+    background-color:black;
+    margin:0;
+    padding:0;
+    cursor:pointer;
+    color:white;
+    font-weight:bold;
+    text-shadow:1px 0 1px white;
+}
+.optBtn:hover{
+    color:darkorange;
+}
+#gameTxt{
+    display:block;
+    position:absolute;
+    top:10%;
+    width:100%;
+    height:50px;
+    margin:auto;
+    opacity:0;
+    z-Index:20;
+}
+.gameTxt{
+    display:block;
+    position:absolute;
+    top:10%;
+    width:100%;
+    height:50px;
+    font-size:32px;
+    font-weight:bold;
+    font-family:Verdana;
+    margin:auto;
+    color:Crimson;
+    opacity:0;
+    z-Index:20;
+    text-shadow:2px 0 2px DarkRed;
+    text-align:center;
+    z-Index:11;
+    cursor:context-menu;
+    animation: fadeTxt 3s linear;
+}
+#gRate{
+    width:50px;
+    font-size:18px;
+}
+.blood{
+    background-color:FireBrick;
+    opacity:75%;
+}
+@keyframes fadeTxt{
+    0% {opacity:1;}
+    100% {opacity:0;transform:translateY(-50px);}
+}
+@keyframes zMove{
+    100% {left:50%;top:50%;}
+}
+@keyframes died{
+    0% {top:50%;left:50%}
+    25% {top:50.25%;left:50.25%}
+    50% {top:49.75%;left:50.25%}
+    75% {top:50.25%;left:49.75%}
+    100%{top:49.75%;left:49.75%}
+}
+@keyframes eat{
+    0% {top:50.25%;left:49.75%}
+    25% {top:49.75%;left:50.25%}
+    50% {top:49.75%;left:49.75%}
+    75% {top:50.25%;left:50.25%}
+    100%{top:50.25%;left:49.75%}
+}
+@keyframes blood{
+    100%{width:100px;height:100px;border-radius:100px;}
+}
+</style>
+<body>
+<div id="warning">
+    <span style="font-size:48px;font-weight:bold;text-align:center;" class="warnTxt"><span style="color:yellow;">☢</span>  WARNING!</span>
+    <span class="warnTxt">Make sure that this copy is downloaded from the official source @github:</span>
+    <a style="color:orangered" class="warnTxt" href="" target="_blank">https://github.com/TheRoam/endleZZ</a>
+    <span class="warnTxt">This game contains javascript code that could be edited and redistributed for malicious purposes.</span>
+    <span class="warnTxt">You can check the original code at github and read the blog for a detailed explanation of the game functions and design.</span>
+    <span style="font-size:48px;font-weight:bold;color:darkgrey;" class="warnTxt">>> INSTRUCTIONS</span>
+    <span style="font-size:48px;font-weight:bold;color:orangered;" class="warnTxt AwarnTxt" onclick="clsWrn()" onmousedown="clsWrn()">>> SKIP</span>
+</div>
+<div id="intro">
+    <span style="color:orangered;transform:rotateY(-45deg) rotateX(20deg) rotateZ(1deg) translateX(-10vw);padding:0;margin-bottom:-5vw;text-shadow:0.3vw 0.05vw 0.02vw darkred;font-family:courier new;font-size:4vw;font-style:normal;font-variant:small-caps;"><a id="TRW" href="https://theroamingworkshop.cloud" target="_blank">TheRoamingWorkshop</a><br><span style="font-size:3vw;color:white;text-shadow:0.3vw 0.05vw 0.02vw darkgrey;font-variant:none;">brings you...</span></span>
+    <span id="introTit">endleZZ<br>
+    <span style="text-align:right;font-size:4vw;font-variant:normal;transform:rotateZ(-3deg);text-shadow:0.3vw 0.05vw 0.02vw darkgrey;">A <span style="color:darkgrey;text-decoration:line-through;text-decoration-thickness:0.5vw;">silly</span> tiny <span style="font-family:courier new;font-size:4vw;font-style:normal;">&#60javascript&#62</span> infinite zombie game<i style="color:orangered"><br>v 0 . 1</i></span>
+    </span>
+    <button id="stBtn" onclick="start()" ontouchstart="start()" onmousedown="start()">start</button>
+</div>
+<span id="gameTxt" class="gameTxt">GO!</span>
+<div id="main">
+    <div id="plyr-cnt">
+        <div id="plyr-bdy">
+            <div id="plyr-gun-cnt">
+                <div id="plyr-gun"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="btmMenu">
+<span class="statBar">Time <span id="tStat">0 : 0 : 0</span><span id="zStat"> | Hits: 0 | Kills: 0 | Spawns: 0 | Bullets: 0</span><span id="sStat"> | Score: 0</span></span>
+</div>
+
+</body>
+<script>
+var ang=0;
+var z=0;
+var b=0;
+var k=0;
+var H=0;
+var S=0;
+var N=1;
+var w=window.innerWidth;
+var h=window.innerHeight;
+var maxTspawn=5000;
+var tSpawn=Math.random()*maxTspawn+1;
+var tIni=new Date();
+var gameClone="";
+var sMin=5;
+var sMax=20;
+var lMin=1;
+var lMax=4;
+var pX="50%";
+var pY="50%";
+var pW=15;
+var pH=15;
+var gRate=5;
+var refRate=3000;
+var time="";
+var zSpawn="";
+var screenCheck="";
+var colDetect="";
+var tPause="";
+var shot="";
+function start(){
+    document.getElementById("intro").style.display="none";
+    window.document.body.requestFullscreen();
+    addListeners();
+    plyrPos();
+    gameClone=document.body.cloneNode(true);
+    tIni=new Date();
+    setTimeout(function(){
+        time=setInterval(timer,100);
+        b=0;
+        S=0;
+    },1000);
+    zSpawn=setTimeout(zObject,tSpawn);
+    screenCheck=setInterval(screen,1000);
+    colDetect=setInterval(colDetector,10);
+}
+function restart(){
+    document.body.innerHTML="";
+    document.body.innerHTML=gameClone.innerHTML;
+    tIni=new Date();
+    time=setInterval(timer,100);
+    zSpawn=setTimeout(zObject,tSpawn);
+    screenCheck=setInterval(screen,1000);
+    colDetect=setInterval(colDetector,10);
+    k=0;
+    H=0;
+    b=0;
+    S=0;
+    z=0;
+}
+function pause(){
+    tPause=new Date();
+    clearInterval(time);
+    clearTimeout(zSpawn);
+    clearInterval(screenCheck);
+    clearInterval(colDetect);
+    stopAnimations();
+    stopListeners();
+    notify("Game Paused!");
+}
+function end(){
+    tPause=new Date();
+    clearInterval(time);
+    clearTimeout(zSpawn);
+    clearInterval(screenCheck);
+    clearInterval(colDetect);
+    endAnimation();
+}
+function restore(){
+    var tRestore=new Date();
+    tIni=new Date(tIni+(tRestore-tPause));
+    time=setInterval(timer,1000);
+    zSpawn=setTimeout(zObject,tSpawn);
+    screenCheck=setInterval(screen,1000);
+    colDetect=setInterval(colDetector,10);
+    restoreAnimations();
+    addListeners();
+    notify("Game Restored!");
+}
+function timer(){
+    var tNow=new Date();
+    var tTime=new Date(tNow-tIni);
+    document.getElementById("tStat").innerHTML=timeFormat(tTime.getUTCHours())+" :"+timeFormat(tTime.getUTCMinutes())+" :"+timeFormat(tTime.getUTCSeconds());
+    var L=document.getElementById("main").children.length-1;
+    S=H-b+(k*10);
+    document.getElementById("zStat").innerHTML=" | Hits: "+H+" | Kills: "+k+" | Spawns: "+z+" | Bullets: "+b;
+    document.getElementById("sStat").innerHTML=" | Score: "+S;
+}
+function timeFormat(t){
+    if(t<10){
+        t=" "+t;
+        return t;
+    }else{
+        return t;
+    }
+}
+function screen(){
+    w=window.innerWidth;
+    h=window.innerHeight;
+}
+function plyrPos(){
+    plyr=document.getElementById("plyr-bdy");
+    plyr.style.width=pW+"px";
+    plyr.style.height=pH+"px";
+    plyr.style.borderRadius=(pW/2)+"px";
+    var plyr=document.getElementById("plyr-cnt");
+    plyr.style.left=(w/2-(pW/2))/w*100+"%";
+    plyr.style.top=(h/2-(pH/2))/h*100+"%";
+    pX=plyr.style.left;
+    pY=plyr.style.top;
+}
+function addListeners(){
+    document.body.addEventListener("touchmove", function(event){
+        plyrAng(event);
+    });
+    document.body.addEventListener("touchstart", function(event){
+        bulletAng(event);
+    });
+    document.body.addEventListener("touchend", function(event){
+        clearInterval(shot);
+    });
+    document.body.addEventListener("mousemove", function(event){
+        plyrAng(event);
+    });
+    document.body.addEventListener("mousedown", function(event){
+        bulletAng(event);
+    });
+}
+function stopListeners(){
+    document.body.addEventListener("touchmove", function(event) {
+        event.stopImmediatePropagation();
+    }, true);
+
+    document.body.addEventListener("touchstart", function(event) {
+        event.stopImmediatePropagation();
+    }, true);
+
+    document.body.addEventListener("touchend", function(event) {
+        event.stopImmediatePropagation();
+    }, true);
+
+    document.body.addEventListener("mousemove", function(event) {
+        event.stopImmediatePropagation();
+    }, true);
+
+    document.body.addEventListener("mousedown", function(event) {
+        event.stopImmediatePropagation();
+    }, true);
+}
+function setRot(a){
+    document.getElementById("plyr-gun-cnt").style.transform="rotate("+(a-Math.PI/2)+"rad)";
+}
+function plyrAng(e){
+    try{
+        var X=e.touches[0].clientX.toFixed(0);
+        var Y=e.touches[0].clientY.toFixed(0);
+    }catch{
+        var X=e.clientX.toFixed(0);
+        var Y=e.clientY.toFixed(0);
+    }
+    if(X>=w/2){
+        var a=X-(w/2);
+        var b=Y-(h/2);
+        ang=Math.atan((b/a)).toFixed(3);
+    }else{
+        var a=X-(w/2);
+        var b=Y-(h/2);
+        ang=(Math.PI+Math.atan((b/a))).toFixed(3);
+    }
+    setRot(ang);
+}
+function bulletAng(e){
+    var bAng=0;
+    var pGun=document.getElementById("plyr-bdy");
+    try{
+        var bX=e.touches[0].clientX.toFixed(0);
+        var bY=e.touches[0].clientY.toFixed(0);
+    }catch{
+        var bX=e.clientX.toFixed(0);
+        var bY=e.clientY.toFixed(0);
+    }
+    if(bX>=w/2){
+        var ba=bX-(w/2);
+        var bb=bY-(h/2);
+        bAng=Math.atan((bb/ba)).toFixed(3);
+    }else{
+        var ba=bX-(w/2);
+        var bb=bY-(h/2);
+        bAng=(Math.PI+Math.atan((bb/ba))).toFixed(3);
+    }
+    b++;
+    var bllt=document.createElement("span");
+    bllt.setAttribute("id", "b"+b);
+    pGun.appendChild(bllt);
+    bllt=document.getElementById("b"+b);
+    bllt.style.display="block";
+    bllt.style.position="absolute";
+    bllt.style.width="2px";
+    bllt.style.height="2px";
+    bllt.style.top=(pW/2)+"px";
+    bllt.style.left=(pW/2)+"px";
+    bllt.style.zIndex="10";
+    bllt.style.backgroundColor="red";
+    var bStyle = document.createElement('style');
+    bStyle.type = 'text/css';
+    var bKF = '\
+    @keyframes b'+b+' {\
+        100% {\
+            transform: translate('+ba+'px,'+bb+'px);\
+        }\
+    }\
+    @-moz-keyframes b'+b+' {\
+        100% {\
+            -moz-transform: translate('+ba+'px,'+bb+'px);\
+        }\
+    }';
+    bStyle.innerHTML=bKF;
+    bStyle.id="bS"+b;
+    document.getElementsByTagName('head')[0].appendChild(bStyle);
+    bllt.style.animation="b"+b+" "+(refRate/1000/gRate)+"s linear";
+    bllt.addEventListener("animationend", function(){
+        objClear(bllt.id);
+        objClear(bStyle.id);
+    }); 
+    bllt.addEventListener("webkitAnimationEnd", function(){
+        objClear(bllt.id);
+        objClear(bStyle.id);
+    });
+}
+function zObject(){
+    tSpawn=Math.random()*maxTspawn+1;
+    zSpawn=setTimeout(zObject,tSpawn);
+    var zombie=document.createElement("span");
+    z++;
+    zombie.setAttribute("id","z"+z);
+    var zSpeed=Math.floor((Math.random()*(sMax-sMin+1))+sMin);
+    zombie.setAttribute("vel",zSpeed);
+    var zLvl=Math.floor((Math.random()*(lMax-lMin+1))+lMin);
+    zombie.setAttribute("lvl",zLvl);
+    document.getElementById("main").appendChild(zombie);
+    zombie=document.getElementById("z"+z);
+    zombie.style.width="5px";
+    zombie.style.height="5px";
+    zombie.style.backgroundColor="OliveDrab";
+    zombie.style.position="absolute";
+    zombie.style.zIndex="15";
+    zombie.style.opacity=0.95;
+    var lTotal=zLvl**2;
+    if(zLvl>1){
+        for (var i=-1;i<zLvl-1;i++){
+            var j=-1;
+            for(j;j<zLvl-1;j++){
+                if(i==0&&j==0){
+                    continue;
+                }
+                var lvl=zombie.cloneNode();
+                lvl.setAttribute("id","z"+z+"."+i+"."+j);
+                zombie.appendChild(lvl);
+                lvl=document.getElementById("z"+z+"."+i+"."+j);
+                lvl.style.left=(j*5)+"px";
+                lvl.style.top=(i*5)+"px";
+                lvl.style.zIndex="5";
+            }
+        }
+    }
+    zombie=document.getElementById("z"+z);
+    zombie.style.backgroundColor="DarkGreen";
+    var b=Math.floor((Math.random() * 4) + 1);
+    switch(b){
+    case 1:
+        var zX=Math.random()*(w-1);
+        var zY=0;
+        zombie.style.left=zX*100/w+"%";
+        zombie.style.top=zY*100/h+"%";
+    break;
+    case 2:
+        var zX=w-1;
+        var zY=Math.random()*(h-1);
+        zombie.style.left=zX*100/w+"%";
+        zombie.style.top=zY*100/h+"%";
+    break;
+    case 3:
+        var zX=Math.random()*(w-1);
+        var zY=h-1;
+        zombie.style.left=zX*100/w+"%";
+        zombie.style.top=zY*100/h+"%";
+    break;
+    case 4:
+        var zX=0;
+        var zY=Math.random()*(h-1);
+        zombie.style.left=zX*100/w+"%";
+        zombie.style.top=zY*100/h+"%";
+    break;
+    }
+    var zAng=0;
+    if(zX>=w/2){
+        var a=zX-(w/2);
+        var b=zY-(h/2);
+        zAng=Math.atan((b/a)).toFixed(3);
+    }else{
+        var a=zX-(w/2);
+        var b=zY-(h/2);
+        zAng=(Math.PI+Math.atan((b/a))).toFixed(3);
+    }
+    zombie.style.transform="rotate("+(zAng-Math.PI*1.5)+"rad)";
+    zombie.style.animation="zMove "+zSpeed+"s";
+    zombie.addEventListener("animationend", function(){
+        zombie.style.animation="eat 0.5s infinite";
+    }); 
+    zombie.addEventListener("webkitAnimationEnd", function(){
+        zombie.style.animation="eat 0.5s infinite";
+    });
+}
+function colDetector(){
+    var Zs=document.getElementById("main").children;
+    var pl=document.getElementById("plyr-bdy");
+    var Bs=pl.children;
+    var col="";
+    for(var b=1;b<Bs.length;b++){
+        for(var c=1;c<Zs.length;c++){
+            for(var n=0;n<Zs[c].children.length;n++){
+                col=collides(Bs[b],Zs[c].children[n]);
+                if(col){
+                    Bs[b].remove();
+                    Zs[c].children[n].remove();
+                    H++;
+                    notify("Hit!");
+                }
+            }
+            col=collides(Bs[b],Zs[c]);
+            if(col){
+                Bs[b].remove();
+                Zs[c].remove();
+                k++;
+                notify("Killed!");
+            }
+        }
+    }
+    for(var c=1;c<Zs.length;c++){
+        col=collides(pl,Zs[c]);
+        if(col){
+            notify("You DIED!");
+            end();
+        }
+    }
+}
+function notify(txt){
+    var t=document.getElementById("gameTxt");
+    t.classList.remove("gameTxt");
+    t.innerHTML=txt;
+    setTimeout(function(){
+        t.classList.add("gameTxt");
+    },100);
+}
+function collides(a, b) {
+    try{
+        var aRect = a.getBoundingClientRect();
+        var bRect = b.getBoundingClientRect();
+        return !(
+            ((aRect.top + aRect.height) < (bRect.top)) ||
+            (aRect.top > (bRect.top + bRect.height)) ||
+            ((aRect.left + aRect.width) < bRect.left) ||
+            (aRect.left > (bRect.left + bRect.width))
+        );
+    }catch{}
+}
+function stopAnimations(){
+    var Zs=document.getElementById("main").children;
+    var pl=document.getElementById("plyr-bdy");
+    var Bs=pl.children;
+    for(var c=1;c<Zs.length;c++){
+        Zs[c].style.animationPlayState="paused";
+    }
+    for(var b=1;b<Bs.length;b++){
+        Bs[b].style.animationPlayState="paused";
+    }
+}
+
+function restoreAnimations(){
+    var Zs=document.getElementById("main").children;
+    var pl=document.getElementById("plyr-bdy");
+    var Bs=pl.children;
+    for(var c=1;c<Zs.length;c++){
+        Zs[c].style.animationPlayState="running";
+    }
+    for(var b=1;b<Bs.length;b++){
+        Bs[b].style.animationPlayState="running";
+    }
+}
+function endAnimation(){
+    document.getElementById("plyr-cnt").style.animation="died 0.3s 1s infinite";
+    setTimeout(function(){
+        document.getElementById("plyr-gun").remove();
+        var gun=document.createElement("span");
+        gun.setAttribute("id","drp-gun");
+        document.getElementById("main").appendChild(gun);
+        gun=document.getElementById("drp-gun");
+        gun.style.display="block";
+        gun.style.position="relative";
+        gun.style.zIndex="10";
+        gun.style.left="51.5%";
+        gun.style.top="49%";
+        gun.style.width="25px";
+        gun.style.height="10px";
+        gun.style.borderTop="5px solid lightgrey";
+        gun.style.borderLeft="5px solid saddlebrown";
+        gun.style.transform="rotate(30deg)";
+    },1000);
+    var bld=1;
+    var bleed=setInterval(function(){
+        var spill = document.createElement("span");
+        spill.setAttribute("id","bld"+bld);
+        spill.setAttribute("class","blood");
+        document.getElementById("main").appendChild(spill);
+        spill=document.getElementById("bld"+bld);
+        spill.style.display="block";
+        spill.style.position="absolute";
+        spill.style.left=((Math.random() * 5)+45)+"%";
+        spill.style.top=((Math.random() * 5)+45)+"%";
+        var spillsize=Math.floor((Math.random()*25)+5)+"px";
+        spill.style.width=spillsize;
+        spill.style.height=spillsize;
+        spill.style.borderRadius=spillsize;
+        spill.style.zIndex="5";
+        spill.style.animation="blood 10s";
+        spill.addEventListener("animationend", function(){
+            spill.style.width="100px";
+            spill.style.height="100px";
+            spill.style.borderRadius="100px";
+        }); 
+        bld++;
+        if(bld==20){
+            clearInterval(bleed);
+        }
+    },500);
+    setTimeout(function(){
+        document.getElementById("gameTxt").style.opacity="1";
+        document.getElementById("gameTxt").innerHTML="<a onclick='restart()'>RESTART?</a>";
+    },10000);
+}
+async function objClear(i){
+    document.getElementById(i).remove();
+}
+function clsWrn(){
+    document.getElementById("warning").style.display="none";
+}
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+</script>
+</html>
