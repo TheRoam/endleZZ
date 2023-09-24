@@ -1,12 +1,38 @@
 <!--
 ----------------------------
-ENDLEZZ by THE ROAMING WORKSHOP
+Initial concept 23-Sep-2022
 ----------------------------
-version 0.1 25-09-2022
+version 0.1 24-09-2022  Layout and basic functionalities
+    changelog:
+        - created player object centered on screen
+        - created bottom menu for game info and controls
+        - created intro loading screen that triggers full screen
+        - created zombie objects that randomly spawn on borders
+        - created zombie levels as bigger objects harder to defeat
+        - created bullet object
+        - bullet object moves to cursor click
+        - created collision detector
+        - collision removes zombie level objects
+        - collision adds kill stats
+        - collision updates text
+        - collision with player ends the game
+        - bottom stats show total zombies spawned
+        - bottom stats show game time
+        - bottom controls show Pause and Restore (not 100% working)
+        - bottom controls show Gun Rate for adjustment
+        - zombie object moves to player object using animation
+        - zombie object removed after animation ends
+----------------------
+version 0.1.1 28-09-2022  Initial bugfix
+    changelog:
+        - disabled user-select so game text is now not selectable
+        - adjusted warning size
+        - created function to check origin and display warning accordingly
 ----------------------
 -->
 <html>
 <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body{
     width:100vw;
@@ -15,43 +41,71 @@ body{
     background-color:black;
     overflow:hidden;
     cursor:context-menu;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
 }
-#warning{
-    display:flex;
+
+#message{
+    display:none;
     position:absolute;
     flex-direction:column;
+    align-items:center;
+    padding:50px 20px 50px 20px;
     width:100%;
     height:100%;
-    padding:10% 20% 10% 20%;
     background-color:rgba(0,0,0,0.98);
     z-Index:1001;
-    animation: warnIn 0.5s linear;
-    overflow:hidden;
+    overflow:auto;
 }
-.warnTxt{
-    width:60%;
+
+input{
+    height:0;
+    margin:0;
+    background:none;
+    border:none;
+}
+
+.msgTxt{
+    width:90%;
     background-color:rgba(255,255,255,0.05);
     font-size:24px;
     font-family:Verdana;
     color:white;
     padding:20px 10px 10px 10px;
     z-Index:1001;
-    animation:warnTxt 1s linear;
+    animation:msgTxt 1s linear;
 }
-.AwarnTxt:hover{
+
+.msgTit{
+    width:90%;
+    background-color:rgba(255,255,255,0.05);
+    font-size:48px;
+    font-weight:bold;
+    text-align:center;
+    font-family:Verdana;
+    color:white;
+    padding:20px 10px 10px 10px;
+    z-Index:1001;
+    animation:msgTxt 1s linear;
+}
+
+.aMsgTxt:hover{
     cursor:pointer;
     text-decoration:underline;
 }
-@keyframes warnIn{
+
+@keyframes msgIn{
     0%{top:-100%;}
     80%{top:20%;}
     100%{top:10%;}
 }
 
-@keyframes warnTxt{
+@keyframes msgTxt{
     0%{opacity:0;}
     100%{opacity:1;}
 }
+
 #intro{
     padding:2vw 2vw 2vw 2vw;
     display:flex;
@@ -74,17 +128,21 @@ body{
     perspective:80vw;
     overflow:hidden;
 }
+
 #introTit{
     transform:rotateY(-45deg) rotateX(15deg) translateX(-10vw);
     text-shadow:0.8vw -0.05vw 0.1vw darkgrey;
 }
+
 #TRW{
     color:orangered;
     text-decoration:none;
 }
+
 #TRW:hover{
     color:darkorange;
 }
+
 #stBtn{
     color:darkred;
     background:transparent;
@@ -103,6 +161,7 @@ body{
     from {color:rgba(255, 160, 122,255);}
     to {color: rgba(178, 34, 34,255);}
 }
+
 #main{
     width:100vw;
     height:100vh;
@@ -110,12 +169,15 @@ body{
     background-color:MediumAquaMarine;
     overflow:hidden;
 }
+
 :fullscreen {
   background-color: MediumAquaMarine;
 }
+
 :-webkit-full-screen {
   background-color: MediumAquaMarine;
 }
+
 #plyr-cnt{
     position:absolute;
     width:1px;
@@ -140,6 +202,7 @@ body{
     transform:rotate(45deg);
     z-Index:10;
 }
+
 #plyr-gun{
     display:block;
     position:relative;
@@ -150,6 +213,7 @@ body{
     background-color:lightgrey;
     z-Index:10;
 }
+
 #btmMenu{
     display:flex;
     flex-direction:column;
@@ -160,6 +224,7 @@ body{
     text-align:center;
     z-Index:100;
 }
+
 .statBar{
     width:100vw;
     border:2px solid black;
@@ -171,12 +236,14 @@ body{
     align-items:center;
     padding: 5px 5px 5px 5px;
 }
+
 #optBar{
     display:flex;
     opacity:0;
     flex-direction:row;
     align-content:center;
 }
+
 .optBtn{
     width:30px;
     font-size:20px;
@@ -188,9 +255,11 @@ body{
     font-weight:bold;
     text-shadow:1px 0 1px white;
 }
+
 .optBtn:hover{
     color:darkorange;
 }
+
 #gameTxt{
     display:block;
     position:absolute;
@@ -201,6 +270,7 @@ body{
     opacity:0;
     z-Index:20;
 }
+
 .gameTxt{
     display:block;
     position:absolute;
@@ -220,21 +290,26 @@ body{
     cursor:context-menu;
     animation: fadeTxt 3s linear;
 }
+
 #gRate{
     width:50px;
     font-size:18px;
 }
+
 .blood{
     background-color:FireBrick;
     opacity:75%;
 }
+
 @keyframes fadeTxt{
     0% {opacity:1;}
     100% {opacity:0;transform:translateY(-50px);}
 }
+
 @keyframes zMove{
     100% {left:50%;top:50%;}
 }
+
 @keyframes died{
     0% {top:50%;left:50%}
     25% {top:50.25%;left:50.25%}
@@ -242,6 +317,7 @@ body{
     75% {top:50.25%;left:49.75%}
     100%{top:49.75%;left:49.75%}
 }
+
 @keyframes eat{
     0% {top:50.25%;left:49.75%}
     25% {top:49.75%;left:50.25%}
@@ -249,27 +325,44 @@ body{
     75% {top:50.25%;left:50.25%}
     100%{top:50.25%;left:49.75%}
 }
+
 @keyframes blood{
     100%{width:100px;height:100px;border-radius:100px;}
 }
+
 </style>
 <body>
-<div id="warning">
-    <span style="font-size:48px;font-weight:bold;text-align:center;" class="warnTxt"><span style="color:yellow;">☢</span>  WARNING!</span>
-    <span class="warnTxt">Make sure that this copy is downloaded from the official source @github:</span>
-    <a style="color:orangered" class="warnTxt" href="" target="_blank">https://github.com/TheRoam/endleZZ</a>
-    <span class="warnTxt">This game contains javascript code that could be edited and redistributed for malicious purposes.</span>
-    <span class="warnTxt">You can check the original code at github and read the blog for a detailed explanation of the game functions and design.</span>
-    <span style="font-size:48px;font-weight:bold;color:darkgrey;" class="warnTxt">>> INSTRUCTIONS</span>
-    <span style="font-size:48px;font-weight:bold;color:orangered;" class="warnTxt AwarnTxt" onclick="clsWrn()" onmousedown="clsWrn()">>> SKIP</span>
+<!-- Warning message -->
+<div id="message">
+    <!--<span style="font-size:48px;font-weight:bold;text-align:center;" class="msgTxt"><span style="color:yellow;">☢</span>  WARNING!</span>
+    <span class="msgTxt">Make sure that this copy is downloaded from the official source @github:<br><br><a style="color:orangered" href="" target="_blank">https://github.com/TheRoam/endleZZ</a><br><br>This game contains javascript code that could be edited and redistributed for malicious purposes.<br><br>You can check the original code at github and read the blog for a detailed explanation of the game functions and design.</span>
+
+    <input name="instructions"/>
+    <label for="intrsuctions" style="font-size:48px;font-weight:bold;color:darkgrey;" class="msgTxt">▶ INSTRUCTIONS</label>
+    <input name="skip"/>
+    <label for="skip" style="font-size:48px;font-weight:bold;color:orangered;" class="msgTxt aMsgTxt" onclick="clsWrn()">▶ SKIP</label>
+-->
 </div>
+
+
+<!-- Intro screen. Waits for everything to load then launches fullscreen when player is ready -->
 <div id="intro">
+
+<!-- The Roaming Workshop header and hyperlink -->
     <span style="color:orangered;transform:rotateY(-45deg) rotateX(20deg) rotateZ(1deg) translateX(-10vw);padding:0;margin-bottom:-5vw;text-shadow:0.3vw 0.05vw 0.02vw darkred;font-family:courier new;font-size:4vw;font-style:normal;font-variant:small-caps;"><a id="TRW" href="https://theroamingworkshop.cloud" target="_blank">TheRoamingWorkshop</a><br><span style="font-size:3vw;color:white;text-shadow:0.3vw 0.05vw 0.02vw darkgrey;font-variant:none;">brings you...</span></span>
+
+<!-- Game title -->
     <span id="introTit">endleZZ<br>
+
+<!-- Game description -->
     <span style="text-align:right;font-size:4vw;font-variant:normal;transform:rotateZ(-3deg);text-shadow:0.3vw 0.05vw 0.02vw darkgrey;">A <span style="color:darkgrey;text-decoration:line-through;text-decoration-thickness:0.5vw;">silly</span> tiny <span style="font-family:courier new;font-size:4vw;font-style:normal;">&#60javascript&#62</span> infinite zombie game<i style="color:orangered"><br>v 0 . 1</i></span>
     </span>
+
+<!-- Start button -->
     <button id="stBtn" onclick="start()" ontouchstart="start()" onmousedown="start()">start</button>
 </div>
+
+<!-- Main game screen -->
 <span id="gameTxt" class="gameTxt">GO!</span>
 <div id="main">
     <div id="plyr-cnt">
@@ -280,109 +373,251 @@ body{
         </div>
     </div>
 </div>
+
+<!-- Bottom control menu -->
 <div id="btmMenu">
+
+<!-- Options icons -->
+<!--Disabled for the moment
+<div id="optBar">
+    <span id="menuBtn" class="optBtn">⚙</span><br>
+    <span id="pauseBtn" class="optBtn" onclick="pause()" ontouchstart="pause()" onmousedown="pause()">▯▯</span><br>
+    <span id="rstBtn" class="optBtn" onclick="restore()" ontouchstart="restore()" onmousedown="restore()">↺</span><br>
+</div>
+-->
+
+<!-- Stats bar -->
 <span class="statBar">Time <span id="tStat">0 : 0 : 0</span><span id="zStat"> | Hits: 0 | Kills: 0 | Spawns: 0 | Bullets: 0</span><span id="sStat"> | Score: 0</span></span>
+
 </div>
 
 </body>
 <script>
-var ang=0;
-var z=0;
-var b=0;
-var k=0;
-var H=0;
-var S=0;
+
+//Check app execution location
+iniWarning();
+
+//Function to display a full screen message
+function msg(tit,txt){
+    //display message box
+    var msg=document.getElementById("message");
+    msg.style.animation="msgIn 0.5s linear";
+    msg.style.display="flex";
+    //set title
+    var msgTit=document.createElement("span");
+    msgTit.setAttribute("id", "msgT");
+    msgTit.setAttribute("class", "msgTit");
+    msg.appendChild(msgTit);
+    msgTit=document.getElementById("msgT");
+    msgTit.innerHTML=tit;
+    //set text
+    var msgTxt=document.createElement("span");
+    msgTxt.setAttribute("id", "msgt");
+    msgTxt.setAttribute("class", "msgTxt");
+    msg.appendChild(msgTxt);
+    msgTxt=document.getElementById("msgt");
+    msgTxt.innerHTML=txt;
+}
+
+//Function to check local execution
+function checkOrigin(){
+    //get app execution location
+    var appE=window.location.href;
+    var appO="https://theroamingworkshop.cloud/endlezz";
+    if(appO==appE){
+        return("TRW");
+    }else{
+        return("OTHER");
+    }
+}
+
+//Function to dispaly initial warning
+function iniWarning(){
+    var chk=checkOrigin();
+    console.log(chk);
+    if(chk=="TRW"){
+    msg(
+"<span style='color:SpringGreen;'>☑</span>  WELCOME!"
+    ,
+"You are playing an official web version of <b>endleZZ</b>. ENJOY!<br><br>\
+<br><br><input name='instructions'/>\
+<label for='intrsuctions' style='font-size:48px;font-weight:bold;color:darkgrey;'>▶ INSTRUCTIONS</label>\
+<br><br><input name='skip'/>\
+<label for='skip' style='font-size:48px;font-weight:bold;color:orangered;' class='aMsgTxt' onclick='clsWrn()'>▶ SKIP</label>"
+
+    );
+    }else{
+    msg(
+"<span style='color:yellow;'>☢</span>  WARNING!"
+    ,
+"You are playing local version of <b>endleZZ</b>.<br><br>\
+Make sure that this copy is downloaded from the official source @github:<br><br>\
+<a style='color:orangered' href='https://github.com/TheRoam/endleZZ' target='_blank'>https://github.com/TheRoam/endleZZ</a>\
+<br><br>This game contains javascript code that could be edited and redistributed for malicious purposes.\
+<br><br>Otherwise, you can play an official web version in:\
+<br><br><a style='color:orangered' href='https://theroamingworkshop.cloud/endleZZ' target='_blank'>https://theroamingworkshop.cloud/endleZZ</a>\
+<br><br><input name='instructions'/>\
+<label for='intrsuctions' style='font-size:48px;font-weight:bold;color:darkgrey;'>▶ INSTRUCTIONS</label>\
+<br><br><input name='skip'/>\
+<label for='skip' style='font-size:48px;font-weight:bold;color:orangered;' class='aMsgTxt' onclick='clsWrn()'>▶ SKIP</label>"
+    );
+    }
+}
+
+//Game variables
+var ang=0;                      //cursor angle
+var z=0;                        //zombie counter
+var b=0;                        //bullet counter
+var k=0;                        //kill counter
+var H=0;                        //hit counter
+var S=0;                        //score
 var N=1;
-var w=window.innerWidth;
-var h=window.innerHeight;
-var maxTspawn=5000;
-var tSpawn=Math.random()*maxTspawn+1;
-var tIni=new Date();
+var w=window.innerWidth;        //screen width
+var h=window.innerHeight;       //screen height
+var maxTspawn=5000;             //maximum spawn time
+var tSpawn=Math.random()*maxTspawn+1;  //random spawn time in miliseconds from 0 to maxTspawn
+var tIni=new Date();            //initial time variable
 var gameClone="";
-var sMin=5;
-var sMax=20;
-var lMin=1;
-var lMax=4;
-var pX="50%";
-var pY="50%";
-var pW=15;
-var pH=15;
-var gRate=5;
-var refRate=3000;
+
+var sMin=5;                     //minimum speed (in seconds)
+var sMax=20;                    //maximum speed (in seconds)
+var lMin=1;                     //minimum level (cubes that make up the zombie)
+var lMax=4;                     //maximum level (maximum cubes forming the side of the zombie)
+var pX="50%";                   //player X coordinate
+var pY="50%";                   //player Y coordinate
+var pW=15;                      //player Width in pixels
+var pH=15;                      //player Height in pixels
+var gRate=5;                    //gun shooting rate
+var refRate=3000;               //gun rate reference value in miliseconds
+
 var time="";
 var zSpawn="";
 var screenCheck="";
 var colDetect="";
 var tPause="";
 var shot="";
+
+
+//Function at game start
 function start(){
     document.getElementById("intro").style.display="none";
     window.document.body.requestFullscreen();
+    //set listeners
     addListeners();
+    //place player
     plyrPos();
+    //clone game for restart
     gameClone=document.body.cloneNode(true);
+    //loop for timer
     tIni=new Date();
+    //start with 1s delay to avoid counting first click
     setTimeout(function(){
         time=setInterval(timer,100);
         b=0;
         S=0;
     },1000);
+    //loop for spawn
     zSpawn=setTimeout(zObject,tSpawn);
+    //loop to check screen size adn recalculate new locations
     screenCheck=setInterval(screen,1000);
+    //loop for collision detector
     colDetect=setInterval(colDetector,10);
 }
+
+//Function for restart
 function restart(){
+    //remove current body
     document.body.innerHTML="";
+    //add start body
     document.body.innerHTML=gameClone.innerHTML;
+    //continue startup
+    //loop for timer
     tIni=new Date();
     time=setInterval(timer,100);
+    //loop for spawn
     zSpawn=setTimeout(zObject,tSpawn);
+    //loop to check screen size adn recalculate new locations
     screenCheck=setInterval(screen,1000);
+    //loop for collision detector
     colDetect=setInterval(colDetector,10);
+    //reset scores
     k=0;
     H=0;
     b=0;
     S=0;
     z=0;
 }
+
+//Function for pause
 function pause(){
     tPause=new Date();
+    console.log(tPause);
+    //kill all timer intervals
     clearInterval(time);
     clearTimeout(zSpawn);
     clearInterval(screenCheck);
     clearInterval(colDetect);
+    //stop animations
     stopAnimations();
+    //stop listeners
     stopListeners();
+    //notify pause
     notify("Game Paused!");
 }
+
+//Function for end
 function end(){
     tPause=new Date();
+    console.log(tPause);
+    //kill all timer intervals
     clearInterval(time);
     clearTimeout(zSpawn);
     clearInterval(screenCheck);
     clearInterval(colDetect);
+    //end animation
     endAnimation();
+    //stop listeners
+    
+    //stopListeners();
 }
+
+//Function to restore after pause
 function restore(){
     var tRestore=new Date();
+    console.log(tRestore);
     tIni=new Date(tIni+(tRestore-tPause));
+    console.log(tIni);
     time=setInterval(timer,1000);
+    //loop for spawn
     zSpawn=setTimeout(zObject,tSpawn);
+    //loop to check screen size adn recalculate new locations
     screenCheck=setInterval(screen,1000);
+    //loop for collision detector
     colDetect=setInterval(colDetector,10);
+    //restore animations
     restoreAnimations();
-    addListeners();
+    //restore listeners
+    addListeners();//TO-DO: doesnt restore listeners!!!
+    //notify restore
     notify("Game Restored!");
 }
+
+//Timer function
 function timer(){
     var tNow=new Date();
     var tTime=new Date(tNow-tIni);
+
+    //update time    
     document.getElementById("tStat").innerHTML=timeFormat(tTime.getUTCHours())+" :"+timeFormat(tTime.getUTCMinutes())+" :"+timeFormat(tTime.getUTCSeconds());
+
+    //update stats
     var L=document.getElementById("main").children.length-1;
     S=H-b+(k*10);
     document.getElementById("zStat").innerHTML=" | Hits: "+H+" | Kills: "+k+" | Spawns: "+z+" | Bullets: "+b;
     document.getElementById("sStat").innerHTML=" | Score: "+S;
 }
+
+//Function to format time when it's only one digit
 function timeFormat(t){
     if(t<10){
         t=" "+t;
@@ -391,38 +626,56 @@ function timeFormat(t){
         return t;
     }
 }
+
+//Function to check screen size
 function screen(){
     w=window.innerWidth;
     h=window.innerHeight;
 }
+
+//Function to place player in the center
 function plyrPos(){
+    //set player size and shape
     plyr=document.getElementById("plyr-bdy");
     plyr.style.width=pW+"px";
     plyr.style.height=pH+"px";
     plyr.style.borderRadius=(pW/2)+"px";
+
+    //set to middle of screen
     var plyr=document.getElementById("plyr-cnt");
     plyr.style.left=(w/2-(pW/2))/w*100+"%";
     plyr.style.top=(h/2-(pH/2))/h*100+"%";
+    //save in variables
     pX=plyr.style.left;
     pY=plyr.style.top;
 }
+
+//Function to set listeners for mouse or touch
 function addListeners(){
+        //touch
     document.body.addEventListener("touchmove", function(event){
         plyrAng(event);
     });
+        //start shooting
     document.body.addEventListener("touchstart", function(event){
-        bulletAng(event);
+
     });
+        //end shooting
     document.body.addEventListener("touchend", function(event){
         clearInterval(shot);
     });
+
+        //mouse
     document.body.addEventListener("mousemove", function(event){
         plyrAng(event);
     });
+        //start shooting
     document.body.addEventListener("mousedown", function(event){
         bulletAng(event);
     });
 }
+
+//Function to stop listeners
 function stopListeners(){
     document.body.addEventListener("touchmove", function(event) {
         event.stopImmediatePropagation();
@@ -444,17 +697,26 @@ function stopListeners(){
         event.stopImmediatePropagation();
     }, true);
 }
+
+//Function to assign player rotation
 function setRot(a){
     document.getElementById("plyr-gun-cnt").style.transform="rotate("+(a-Math.PI/2)+"rad)";
 }
+ 
+//Function to calculate player rotation angle
 function plyrAng(e){
-    try{
+
+    //get touch/click coordinates
+
+    try{//for touch
         var X=e.touches[0].clientX.toFixed(0);
         var Y=e.touches[0].clientY.toFixed(0);
-    }catch{
+    }catch{//on error, it's mouse
         var X=e.clientX.toFixed(0);
         var Y=e.clientY.toFixed(0);
     }
+
+    //Calculate angle in radians (arc tangent of sides from center)
     if(X>=w/2){
         var a=X-(w/2);
         var b=Y-(h/2);
@@ -464,18 +726,30 @@ function plyrAng(e){
         var b=Y-(h/2);
         ang=(Math.PI+Math.atan((b/a))).toFixed(3);
     }
+
+    //var t=document.getElementById("txt");
+    //t.innerHTML=w+"w\n"+h+"h\n"+X+"X\n"+Y+"Y\n"+ang+"rad";
+
+    //assign rotation to player
     setRot(ang);
 }
+
+//Function for bullet direction and animation
 function bulletAng(e){
     var bAng=0;
+    //get gun object
     var pGun=document.getElementById("plyr-bdy");
-    try{
+
+    //get touch/click coordinates
+    try{//for touch
         var bX=e.touches[0].clientX.toFixed(0);
         var bY=e.touches[0].clientY.toFixed(0);
-    }catch{
+    }catch{//on error, it's mouse
         var bX=e.clientX.toFixed(0);
         var bY=e.clientY.toFixed(0);
     }
+
+    //Calculate angle in radians (arc tangent of sides from center)
     if(bX>=w/2){
         var ba=bX-(w/2);
         var bb=bY-(h/2);
@@ -485,11 +759,20 @@ function bulletAng(e){
         var bb=bY-(h/2);
         bAng=(Math.PI+Math.atan((bb/ba))).toFixed(3);
     }
+    //now get the distances to the borders
+//    ba=h*0.9/2/Math.atan(bAng);
+//    bb=w/2*Math.atan(bAng);
+
+    //create bullet object
     b++;
     var bllt=document.createElement("span");
+    //define ID for bullet
     bllt.setAttribute("id", "b"+b);
+    //add to player
     pGun.appendChild(bllt);
+    //redefine reference to bullet
     bllt=document.getElementById("b"+b);
+    //define properties
     bllt.style.display="block";
     bllt.style.position="absolute";
     bllt.style.width="2px";
@@ -498,6 +781,9 @@ function bulletAng(e){
     bllt.style.left=(pW/2)+"px";
     bllt.style.zIndex="10";
     bllt.style.backgroundColor="red";
+//    bllt.style.transform="rotate("+(bAng-Math.PI/2)+"rad)";
+
+    //add bullet animation
     var bStyle = document.createElement('style');
     bStyle.type = 'text/css';
     var bKF = '\
@@ -511,77 +797,120 @@ function bulletAng(e){
             -moz-transform: translate('+ba+'px,'+bb+'px);\
         }\
     }';
+//    style.innerHTML = keyFrames.replace(/A_DYNAMIC_VALUE/g, "180deg");
     bStyle.innerHTML=bKF;
     bStyle.id="bS"+b;
     document.getElementsByTagName('head')[0].appendChild(bStyle);
+
     bllt.style.animation="b"+b+" "+(refRate/1000/gRate)+"s linear";
+
+    //remove bullet after animation
     bllt.addEventListener("animationend", function(){
+        console.log("eliminando Bala "+bllt.id);
         objClear(bllt.id);
         objClear(bStyle.id);
     }); 
+    //for chrome, safari, opera..
     bllt.addEventListener("webkitAnimationEnd", function(){
+        console.log("eliminando Bala "+bllt.id);
         objClear(bllt.id);
         objClear(bStyle.id);
     });
 }
+
 function zObject(){
+    //set next spawn
     tSpawn=Math.random()*maxTspawn+1;
     zSpawn=setTimeout(zObject,tSpawn);
+
+    //create object for zombie
     var zombie=document.createElement("span");
+    //assign ID (ascending) used as counter
     z++;
     zombie.setAttribute("id","z"+z);
+
+    //set zombie speed to reach the player, in seconds (random, from min to max speed)
     var zSpeed=Math.floor((Math.random()*(sMax-sMin+1))+sMin);
     zombie.setAttribute("vel",zSpeed);
+    
+    //set zombie level (number of cubes that make up the zombie, random from min to max level)
     var zLvl=Math.floor((Math.random()*(lMax-lMin+1))+lMin);
     zombie.setAttribute("lvl",zLvl);
+    //add to game
     document.getElementById("main").appendChild(zombie);
+
+    //reassign zombie object for edition
     zombie=document.getElementById("z"+z);
+    //set physical properties (5px black square)
     zombie.style.width="5px";
     zombie.style.height="5px";
     zombie.style.backgroundColor="OliveDrab";
     zombie.style.position="absolute";
     zombie.style.zIndex="15";
     zombie.style.opacity=0.95;
+
+    //add zombie levels if needed
+    //first, get total cubes needed for zombie level
     var lTotal=zLvl**2;
     if(zLvl>1){
+        //loop for rows
         for (var i=-1;i<zLvl-1;i++){
+            //loop for columns
             var j=-1;
+            /*if(i==0){
+                j=1;
+            }*/
             for(j;j<zLvl-1;j++){
+                //skip middle (head) cube
                 if(i==0&&j==0){
                     continue;
                 }
                 var lvl=zombie.cloneNode();
                 lvl.setAttribute("id","z"+z+"."+i+"."+j);
                 zombie.appendChild(lvl);
+                //set properties
                 lvl=document.getElementById("z"+z+"."+i+"."+j);
+                //move to right (offset from left origin)
                 lvl.style.left=(j*5)+"px";
+                //move each row
                 lvl.style.top=(i*5)+"px";
+                //move back
                 lvl.style.zIndex="5";
             }
         }
     }
+    //change zombie head color and bring to front
     zombie=document.getElementById("z"+z);
     zombie.style.backgroundColor="DarkGreen";
+
+
+    //ubicación aleatoria en los bordes (1:arriba; 2:derecha; 3:abajo; 4:izquierda)
+    //la ubicación es porcentual para conservarla al redimensionar
     var b=Math.floor((Math.random() * 4) + 1);
+
     switch(b){
+    //borde 1 (arriba)
     case 1:
-        var zX=Math.random()*(w-1);
+        var zX=Math.random()*(w-1); //excluimos el último pixel para que no quede fuera
         var zY=0;
         zombie.style.left=zX*100/w+"%";
         zombie.style.top=zY*100/h+"%";
     break;
+    //borde 2 (derecha)
     case 2:
         var zX=w-1;
         var zY=Math.random()*(h-1);
         zombie.style.left=zX*100/w+"%";
         zombie.style.top=zY*100/h+"%";
     break;
+    //borde 3 (abajo)
     case 3:
         var zX=Math.random()*(w-1);
         var zY=h-1;
         zombie.style.left=zX*100/w+"%";
         zombie.style.top=zY*100/h+"%";
     break;
+    //borde 4 (izquierda)
     case 4:
         var zX=0;
         var zY=Math.random()*(h-1);
@@ -589,7 +918,10 @@ function zObject(){
         zombie.style.top=zY*100/h+"%";
     break;
     }
+
+    //assign rotation
     var zAng=0;
+    //Calculate angle in radians (arc tangent of sides from center)
     if(zX>=w/2){
         var a=zX-(w/2);
         var b=zY-(h/2);
@@ -600,55 +932,88 @@ function zObject(){
         zAng=(Math.PI+Math.atan((b/a))).toFixed(3);
     }
     zombie.style.transform="rotate("+(zAng-Math.PI*1.5)+"rad)";
+
+    //add movement animation
     zombie.style.animation="zMove "+zSpeed+"s";
+    //add animation end
     zombie.addEventListener("animationend", function(){
         zombie.style.animation="eat 0.5s infinite";
     }); 
+    //for chrome, safari, opera..
     zombie.addEventListener("webkitAnimationEnd", function(){
         zombie.style.animation="eat 0.5s infinite";
     });
+    //show spawned zombie attributes    
+//    console.log(zombie.id+" vel: "+zombie.getAttribute("vel")+" lvl: "+zombie.getAttribute("lvl"));
 }
+
+//Function for collision detection
 function colDetector(){
     var Zs=document.getElementById("main").children;
     var pl=document.getElementById("plyr-bdy");
     var Bs=pl.children;
     var col="";
+    //loop bullet objects
     for(var b=1;b<Bs.length;b++){
+        //loop zombie objects
         for(var c=1;c<Zs.length;c++){
+            //loop zombie children
             for(var n=0;n<Zs[c].children.length;n++){
                 col=collides(Bs[b],Zs[c].children[n]);
                 if(col){
+                    console.log("COLLISION!!!");
+                    //delete bullet so it doesn't hit anymore
                     Bs[b].remove();
+                    //remove zombie element
                     Zs[c].children[n].remove();
+                    //add Hit point
                     H++;
+                    //notify hit
                     notify("Hit!");
                 }
             }
+            //last object
             col=collides(Bs[b],Zs[c]);
             if(col){
+                console.log("COLLISION!!!");
+                //remove bullet
                 Bs[b].remove();
+                //remove zombie
                 Zs[c].remove();
+                //add kill point
                 k++;
+                //notify kill
                 notify("Killed!");
             }
         }
     }
+    //check player collision
     for(var c=1;c<Zs.length;c++){
         col=collides(pl,Zs[c]);
         if(col){
+            console.log("COLLISION!!!");
             notify("You DIED!");
+            //end game by pausing
             end();
+            //TO-DO: trigger final score animation
         }
     }
 }
+
 function notify(txt){
+    //find notification object
     var t=document.getElementById("gameTxt");
+    //remove animation
     t.classList.remove("gameTxt");
+    //set displayed text
     t.innerHTML=txt;
+    //restore animation
     setTimeout(function(){
         t.classList.add("gameTxt");
     },100);
 }
+
+//Function for collision detection
 function collides(a, b) {
     try{
         var aRect = a.getBoundingClientRect();
@@ -661,6 +1026,7 @@ function collides(a, b) {
         );
     }catch{}
 }
+
 function stopAnimations(){
     var Zs=document.getElementById("main").children;
     var pl=document.getElementById("plyr-bdy");
@@ -684,12 +1050,19 @@ function restoreAnimations(){
         Bs[b].style.animationPlayState="running";
     }
 }
+
 function endAnimation(){
+    //add movement to player and zombies
     document.getElementById("plyr-cnt").style.animation="died 0.3s 1s infinite";
+    //drop gun after 1s
     setTimeout(function(){
+        //remove current
         document.getElementById("plyr-gun").remove();
+        //create new object
         var gun=document.createElement("span");
+        //set ID
         gun.setAttribute("id","drp-gun");
+        //add to map
         document.getElementById("main").appendChild(gun);
         gun=document.getElementById("drp-gun");
         gun.style.display="block";
@@ -703,46 +1076,70 @@ function endAnimation(){
         gun.style.borderLeft="5px solid saddlebrown";
         gun.style.transform="rotate(30deg)";
     },1000);
+    //add 20 blood spill objects
     var bld=1;
     var bleed=setInterval(function(){
+        //create object
         var spill = document.createElement("span");
+        //set attribute
         spill.setAttribute("id","bld"+bld);
+        //set base class
         spill.setAttribute("class","blood");
+        //add to game
         document.getElementById("main").appendChild(spill);
+        //get spill object
         spill=document.getElementById("bld"+bld);
+        //set properties
         spill.style.display="block";
         spill.style.position="absolute";
+        //location random around the center
         spill.style.left=((Math.random() * 5)+45)+"%";
         spill.style.top=((Math.random() * 5)+45)+"%";
+        //size random from 5 to 25 px
         var spillsize=Math.floor((Math.random()*25)+5)+"px";
+        console.log(spillsize);
         spill.style.width=spillsize;
         spill.style.height=spillsize;
+        //make it circular
         spill.style.borderRadius=spillsize;
+        //bring to front
         spill.style.zIndex="5";
+        //add blood animation
         spill.style.animation="blood 10s";
+        //add animation end
         spill.addEventListener("animationend", function(){
             spill.style.width="100px";
             spill.style.height="100px";
             spill.style.borderRadius="100px";
         }); 
+        //increase counter
         bld++;
+        //clear blood creation when 20
         if(bld==20){
             clearInterval(bleed);
         }
     },500);
+    // add restart text after 10s
     setTimeout(function(){
         document.getElementById("gameTxt").style.opacity="1";
         document.getElementById("gameTxt").innerHTML="<a onclick='restart()'>RESTART?</a>";
     },10000);
 }
+
+//Function to vanish zombie after animation
 async function objClear(i){
     document.getElementById(i).remove();
 }
+
+//Function to close warning message
 function clsWrn(){
     document.getElementById("warning").style.display="none";
 }
+
+//Function for delays (not used)
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 </script>
 </html>
