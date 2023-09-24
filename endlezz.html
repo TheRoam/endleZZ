@@ -39,6 +39,11 @@ version 0.2.0 23-09-2023  Anniversary update
         - bullets now reach the end of the screen despite where you click
         - overall performance improvements
 ----------------------
+version 0.2.1 24-09-2023  minor styling
+    changelog:
+        - fixed menu background display
+        - added zombie eyes
+----------------------
 -->
 <html>
 <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
@@ -279,8 +284,10 @@ input{
 
 .optBtn{
     width:50px;
+	height:50px;
+	vertical-align:middle;
     font-size:30px;
-    background-color:lightgrey;
+    background-color:none;
     margin:0;
     padding:0;
     cursor:pointer;
@@ -381,6 +388,9 @@ input{
     -o-animation-play-state:paused; 
     animation-play-state:paused;
 }
+.optBarFill{
+    background-color:lightgrey;
+}
 
 </style>
 <body>
@@ -407,7 +417,7 @@ input{
     <span id="introTit">endleZZ<br>
 
 <!-- Game description -->
-    <span style="text-align:right;font-size:4vw;font-variant:normal;transform:rotateZ(-3deg);text-shadow:0.3vw 0.05vw 0.02vw darkgrey;">A <span style="color:darkgrey;text-decoration:line-through;text-decoration-thickness:0.5vw;">silly</span> tiny <span style="font-family:courier new;font-size:4vw;font-style:normal;">&#60javascript&#62</span> infinite zombie game<i style="color:orangered"><br>v 0 . 2</i></span>
+    <span style="text-align:right;font-size:4vw;font-variant:normal;transform:rotateZ(-3deg);text-shadow:0.3vw 0.05vw 0.02vw darkgrey;">A <span style="color:darkgrey;text-decoration:line-through;text-decoration-thickness:0.5vw;">silly</span> tiny <span style="font-family:courier new;font-size:4vw;font-style:normal;">&#60javascript&#62</span> infinite zombie game<i style="color:orangered"><br>v 0 . 2 . 1</i></span>
     </span>
 
 <!-- Start button -->
@@ -1396,6 +1406,34 @@ function zObject(){
     zombie.style.height="8px";
     zombie.style.borderRadius="8px";
 
+	//add zombie red eyes
+	//eye1
+	var eye=document.createElement("span");
+	eye.setAttribute("id", zombie.id+".e1");
+	zombie.appendChild(eye);
+	eye=document.getElementById(zombie.id+".e1");
+	eye.style.position="absolute";
+	eye.style.zIndex="10";
+	eye.style.width="3px";
+	eye.style.height="3px";
+	eye.style.borderRadius="3px";
+	eye.style.backgroundColor="yellow";
+	eye.style.boxShadow="0 0 3px white";
+	eye.style.top="6px";
+	//eye2
+	eye=document.createElement("span");
+	eye.setAttribute("id", zombie.id+".e2");
+	zombie.appendChild(eye);
+	eye=document.getElementById(zombie.id+".e2");
+	eye.style.position="absolute";
+	eye.style.zIndex="10";
+	eye.style.width="3px";
+	eye.style.height="3px";
+	eye.style.borderRadius="3px";
+	eye.style.backgroundColor="yellow";
+	eye.style.boxShadow="0 0 3px white";
+	eye.style.top="6px";
+	eye.style.left="5px";
 
     //ubicación aleatoria en los bordes (1:arriba; 2:derecha; 3:abajo; 4:izquierda)
     //la ubicación es porcentual para conservarla al redimensionar
@@ -1692,12 +1730,14 @@ function showMenu(){
     document.getElementById("pauseBtn").style.visibility="visible";
     document.getElementById("rstBtn").style.visibility="visible";
     document.getElementById("exitBtn").style.visibility="visible";
+	document.getElementById("optBar").classList.add("optBarFill");
 }
 
 function hideMenu(){
     document.getElementById("pauseBtn").style.visibility="hidden";
     document.getElementById("rstBtn").style.visibility="hidden";
     document.getElementById("exitBtn").style.visibility="hidden";
+	document.getElementById("optBar").classList.remove("optBarFill");
 }
 
 
